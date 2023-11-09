@@ -33,7 +33,7 @@ BIN_DIR = "${S}/openjdk-${OPENJDK_VERSION}"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/usr/lib/jvm/java-8-openjdk-armhf/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
-OPENJDK_DEBIAN_URL = "http://security.debian.org/debian-security/pool/updates/main/o/openjdk-8/"
+OPENJDK_DEBIAN_URL = "http://archive.debian.org/debian-archive/debian/pool/main/o/openjdk-8/"
 
 JDK_FILE = "openjdk-8-jdk-headless_${OPENJDK_VERSION}_armhf.deb"
 JDK_URI = "${OPENJDK_DEBIAN_URL}/${JDK_FILE};name=jdk;unpack=false"
