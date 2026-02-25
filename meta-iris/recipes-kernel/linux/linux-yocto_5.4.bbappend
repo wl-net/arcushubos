@@ -5,12 +5,14 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/linux-5.x:"
 KERNEL_EXTRA_FEATURES = ""
 KERNEL_FEATURES_append = ""
 
-# Upgrade to 4.19.115 kernel until Yocto release catches up...
-#SRCREV_machine_beaglebone-yocto ?= "8e53093ba27fb7a714f62ad52c30031c3e0ae13d"
-#LINUX_VERSION_beaglebone-yocto = "4.19.115"
-#KERNEL_VERSION_SANITY_SKIP="1"
-#LINUX_VERSION = "4.19.115"
-#PV = "${LINUX_VERSION}+git${SRCPV}"
+# Kernel branch/machine config (replaces masked meta-yocto-bsp bbappend)
+KBRANCH_beaglebone-yocto = "v5.4/standard/beaglebone"
+KMACHINE_beaglebone-yocto ?= "beaglebone"
+SRCREV_machine_beaglebone-yocto = "fe901e2f4b156e9cf7ddb03f479f7339d28e398b"
+LINUX_VERSION_beaglebone-yocto = "5.4.273"
+LINUX_VERSION = "5.4.273"
+PV = "${LINUX_VERSION}+git${SRCPV}"
+COMPATIBLE_MACHINE_beaglebone-yocto = "beaglebone-yocto"
 
 # Create a uImage output file to match what we have done in past
 KERNEL_IMAGETYPE = "uImage"
