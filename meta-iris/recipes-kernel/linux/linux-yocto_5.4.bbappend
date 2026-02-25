@@ -22,6 +22,8 @@ SRC_URI += " \
 	file://leds.cfg \
 	file://pwm.cfg \
 	file://usb.cfg \
+	file://serial.cfg \
+	file://debug.cfg \
 	file://0001-Iris-dtsi-config-changes.patch \
 	file://0004-Go-back-to-old-mmc-numbering-scheme.patch \
 	file://0002-Disable-Ethernet-MDIX.patch \
