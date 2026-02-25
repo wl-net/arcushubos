@@ -25,7 +25,7 @@
 #define VERSION_POINT 1
 
 /* Build number gets incremented with each official build */
-#define VERSION_BUILD    29
+#define VERSION_BUILD    32
 
 /* The suffix is used to identify special, one-off, builds */
 #define VERSION_SUFFIX ""

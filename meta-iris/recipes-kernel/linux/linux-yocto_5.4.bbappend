@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/linux-4.x:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux-5.x:"
 
 # Clear out the kernel extra features to make sure netfilter support doesn't
 #  get added back in!
@@ -6,11 +6,11 @@ KERNEL_EXTRA_FEATURES = ""
 KERNEL_FEATURES_append = ""
 
 # Upgrade to 4.19.115 kernel until Yocto release catches up...
-SRCREV_machine_beaglebone-yocto ?= "8e53093ba27fb7a714f62ad52c30031c3e0ae13d"
-LINUX_VERSION_beaglebone-yocto = "4.19.115"
-KERNEL_VERSION_SANITY_SKIP="1"
-LINUX_VERSION = "4.19.115"
-PV = "${LINUX_VERSION}+git${SRCPV}"
+#SRCREV_machine_beaglebone-yocto ?= "8e53093ba27fb7a714f62ad52c30031c3e0ae13d"
+#LINUX_VERSION_beaglebone-yocto = "4.19.115"
+#KERNEL_VERSION_SANITY_SKIP="1"
+#LINUX_VERSION = "4.19.115"
+#PV = "${LINUX_VERSION}+git${SRCPV}"
 
 # Create a uImage output file to match what we have done in past
 KERNEL_IMAGETYPE = "uImage"
