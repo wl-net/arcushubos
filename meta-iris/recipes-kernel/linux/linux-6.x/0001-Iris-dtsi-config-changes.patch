@@ -1,0 +1,259 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Date: Wed, 22 Nov 2017 15:45:17 -0500
+Subject: [PATCH] Iris dtsi config changes for Hub V2
+
+Customize am335x BeagleBone Black device tree for Iris Hub V2:
+- Rename LEDs to green/yellow/red, disable default triggers
+- Switch USB0 to host mode
+- Replace HDMI/audio with UART1/2/4 pin muxes for radio serial ports
+- Add PWM buzzer on ehrpwm2B (P8_13)
+- Disable RTC (not present on Hub V2 hardware)
+
+Adapted for kernel 6.6 where DTS files moved to arch/arm/boot/dts/ti/omap/.
+The omap_hwmod_33xx_data.c RTC hunk is dropped as hwmod is largely replaced
+by device tree in 6.x kernels.
+
+---
+ arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi      |  21 ++--
+ arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi | 146 ++++++-----------
+ 2 files changed, 45 insertions(+), 122 deletions(-)
+
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+index 111111111111..222222222222 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+@@ -26,30 +26,23 @@
+ 		compatible = "gpio-leds";
+
+ 		led2 {
+-			label = "beaglebone:green:heartbeat";
++			label = "green";
+ 			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "heartbeat";
++			linux,default-trigger = "none";
+ 			default-state = "off";
+ 		};
+
+ 		led3 {
+-			label = "beaglebone:green:mmc0";
++			label = "yellow";
+ 			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "mmc0";
++			linux,default-trigger = "none";
+ 			default-state = "off";
+ 		};
+
+ 		led4 {
+-			label = "beaglebone:green:usr2";
++			label = "red";
+ 			gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "cpu0";
+-			default-state = "off";
+-		};
+-
+-		led5 {
+-			label = "beaglebone:green:usr3";
+-			gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "mmc1";
++			linux,default-trigger = "none";
+ 			default-state = "off";
+ 		};
+ 	};
+@@ -209,7 +202,7 @@
+
+ &usb0 {
+ 	status = "okay";
+-	dr_mode = "peripheral";
++	dr_mode = "host";
+ 	interrupts-extended = <&intc 18 &tps 0>;
+ 	interrupt-names = "mc", "vbus";
+ };
+
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi
+index 333333333333..444444444444 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi
+@@ -25,144 +25,66 @@
+ };
+
+ &am33xx_pinmux {
+-	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
++	uart1_pins: pinmux_uart1_pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_PADCONF(AM335X_PIN_XDMA_EVENT_INTR0, PIN_OUTPUT_PULLDOWN, MUX_MODE3)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA0, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA1, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA2, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA3, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA4, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA5, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA6, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA7, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA8, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA9, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA10, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA11, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA12, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA13, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA14, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_DATA15, PIN_OUTPUT, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_VSYNC, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_HSYNC, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_PCLK, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_LCD_AC_BIAS_EN, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
++			0x180 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart1_rxd.uart0_rxd */
++			0x184 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart1_txd.uart0_txd */
+ 		>;
+ 	};
+
+-	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
++	uart2_pins: pinmux_uart2_pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_PADCONF(AM335X_PIN_XDMA_EVENT_INTR0, PIN_OUTPUT_PULLDOWN, MUX_MODE3)
++			0x150 (PIN_INPUT_PULLUP | MUX_MODE1)	/* uart2_rxd.uart0_rxd */
++			0x154 (PIN_OUTPUT_PULLDOWN | MUX_MODE1)	/* uart2_txd.uart0_txd */
++			0x0C0 (PIN_INPUT | MUX_MODE6)   /* UART2_CTSN = lcd_data8, MODE6 */
++			0x0C4 (PIN_OUTPUT | MUX_MODE6)   /* UART2_RTSN = lcd_data9, MODE6 */
+ 		>;
+ 	};
+
+-	mcasp0_pins: mcasp0_pins {
++	uart4_pins: pinmux_uart4_pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKX, PIN_INPUT_PULLUP, MUX_MODE0) /* mcasp0_ahcklx.mcasp0_ahclkx */
+-			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKR, PIN_OUTPUT_PULLDOWN, MUX_MODE2) /* mcasp0_ahclkr.mcasp0_axr2*/
+-			AM33XX_PADCONF(AM335X_PIN_MCASP0_FSX, PIN_OUTPUT_PULLUP, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKX, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
+-			AM33XX_PADCONF(AM335X_PIN_GPMC_A11, PIN_OUTPUT_PULLDOWN, MUX_MODE7) /* gpmc_a11.GPIO1_27 */
++			0x70 (PIN_INPUT_PULLUP | MUX_MODE6)	/* uart4_rxd.uart0_rxd */
++			0x74 (PIN_OUTPUT_PULLDOWN | MUX_MODE6)	/* uart4_txd.uart0_txd */
++			0x0D0 (PIN_INPUT | MUX_MODE6)   /* UART4_CTSN = lcd_data12, MODE6 */
++			0x0D4 (PIN_OUTPUT | MUX_MODE6)   /* UART4_RTSN = lcd_data13, MODE6 */
+ 		>;
+ 	};
+-};
+-
+-&lcdc {
+-	status = "okay";
+-
+-	/* If you want to get 24 bit RGB and 16 BGR mode instead of
+-	 * current 16 bit RGB and 24 BGR modes, set the propety
+-	 * below to "crossed" and uncomment the video-ports -property
+-	 * in tda19988 node.
+-	 */
+-	blue-and-red-wiring = "straight";
+
+-	port {
+-		lcdc_0: endpoint@0 {
+-			remote-endpoint = <&hdmi_0>;
+-		};
++	pwm_buzzer_ext1_pins: pinmux_pwm_buzzer_ext1_pins {
++		pinctrl-single,pins = <
++		        0x024 (PIN_OUTPUT_PULLDOWN | MUX_MODE4) /* gpmc_ad9  = ehrpwm2B = P8_13 */
++		>;
+ 	};
+ };
+
+-&i2c0 {
+-	tda19988: tda19988@70 {
+-		compatible = "nxp,tda998x";
+-		reg = <0x70>;
+-		nxp,calib-gpios = <&gpio1 25 0>;
+-		interrupts-extended = <&gpio1 25 IRQ_TYPE_LEVEL_LOW>;
+-
+-		pinctrl-names = "default", "off";
+-		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+-
+-		/* Convert 24bit BGR to RGB, e.g. cross red and blue wiring */
+-		/* video-ports = <0x234501>; */
+-
+-		#sound-dai-cells = <0>;
+-		audio-ports = <	TDA998x_I2S	0x03>;
+-
+-		ports {
+-			port@0 {
+-				hdmi_0: endpoint@0 {
+-					remote-endpoint = <&lcdc_0>;
+-				};
+-			};
+-		};
+-	};
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_pins>;
++	status = "okay";
+ };
+
+-&rtc {
+-	system-power-controller;
++&uart2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart2_pins>;
++	status = "okay";
+ };
+
+-&mcasp0	{
+-	#sound-dai-cells = <0>;
++&uart4 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&mcasp0_pins>;
++	pinctrl-0 = <&uart4_pins>;
+ 	status = "okay";
+-	op-mode = <0>;	/* MCASP_IIS_MODE */
+-	tdm-slots = <2>;
+-	serial-dir = <	/* 0: INACTIVE, 1: TX, 2: RX */
+-			0 0 1 0
+-		>;
+-	tx-num-evt = <32>;
+-	rx-num-evt = <32>;
+ };
+
+-/ {
+-	memory@80000000 {
+-		device_type = "memory";
+-		reg = <0x80000000 0x20000000>; /* 512 MB */
+-	};
+-
+-	clk_mcasp0_fixed: clk_mcasp0_fixed {
+-		#clock-cells = <0>;
+-		compatible = "fixed-clock";
+-		clock-frequency = <24576000>;
+-	};
+-
+-	clk_mcasp0: clk_mcasp0 {
+-		#clock-cells = <0>;
+-		compatible = "gpio-gate-clock";
+-		clocks = <&clk_mcasp0_fixed>;
+-		enable-gpios = <&gpio1 27 0>; /* BeagleBone Black Clk enable on GPIO1_27 */
+-	};
+-
+-	sound {
+-		compatible = "simple-audio-card";
+-		simple-audio-card,name = "TI BeagleBone Black";
+-		simple-audio-card,format = "i2s";
+-		simple-audio-card,bitclock-master = <&dailink0_master>;
+-		simple-audio-card,frame-master = <&dailink0_master>;
++&epwmss2 {
++	status = "okay";
++};
+
+-		dailink0_master: simple-audio-card,cpu {
+-			sound-dai = <&mcasp0>;
+-			clocks = <&clk_mcasp0>;
+-		};
++&ehrpwm2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm_buzzer_ext1_pins>;
++	status = "okay";
++};
+
+-		simple-audio-card,codec {
+-			sound-dai = <&tda19988>;
+-		};
+-	};
++&rtc {
++	status = "disabled";
+ };
+--
+2.17.1

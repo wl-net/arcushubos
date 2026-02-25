@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Date: Thu, 17 Oct 2019 11:40:34 -0400
+Subject: [PATCH] Fix MMC numbering via DT aliases for Iris Hub V2
+
+The Iris Hub V2 requires the eMMC to be mmcblk0 and SD card to be mmcblk1
+for the U-Boot/kernel partition layout to work correctly.
+
+In kernel 6.6, the MMC subsystem respects DT aliases for device numbering.
+Use /aliases node to explicitly assign mmc0 = eMMC (mmc2) and mmc1 = SD
+(mmc1), matching the expected boot layout.
+
+This replaces the old approach of patching drivers/mmc/core/block.c which
+was fragile across kernel versions.
+
+NOTE: This patch may need manual adjustment based on the actual
+v6.6/standard/beaglebone kernel tree DTS content. The aliases node
+may already exist and just need mmc0/mmc1 entries added, or the
+existing entries may need to be changed.
+
+---
+ arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+index 222222222222..333333333333 100644
+--- a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
+@@ -8,6 +8,11 @@
+
+ / {
++	aliases {
++		mmc0 = &mmc2;	/* eMMC = mmcblk0 */
++		mmc1 = &mmc1;	/* SD card = mmcblk1 */
++	};
++
+ 	cpus {
+ 		cpu@0 {
+ 			cpu0-supply = <&dcdc2_reg>;
+--
+2.17.1
