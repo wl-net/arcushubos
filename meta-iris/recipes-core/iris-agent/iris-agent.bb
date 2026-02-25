@@ -23,7 +23,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 DEPENDS = "iris-lib"
-RDEPENDS_${PN} = "iris-lib iris-utils logrotate cronie"
+RDEPENDS:${PN} = "iris-lib iris-utils logrotate cronie"
 PR = "r0"
 S = "${WORKDIR}"
 
@@ -50,7 +50,7 @@ SRC_URI = "file://irisagent \
 # Add to list if using local binary and remove server file https line
 #	   file://iris-agent-hub
 
-FILES_${PN} += "/home/agent \
+FILES:${PN} += "/home/agent \
                /home/root/.ssh \
                "
 

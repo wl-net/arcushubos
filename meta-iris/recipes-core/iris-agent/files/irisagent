@@ -90,6 +90,12 @@ else
 fi
 chmod 600 /var/run/authorized_keys
 
+# Create ttyO* symlinks for kernel 5.4+ (OMAP serial renamed to ttyS*)
+# Needed by pre-built agent JARs and zigbee/zwave binaries
+ln -sf /dev/ttyS1 /dev/ttyO1
+ln -sf /dev/ttyS2 /dev/ttyO2
+ln -sf /dev/ttyS4 /dev/ttyO4
+
 # Launch IRIS Hub agent daemon
 irisagentd
 

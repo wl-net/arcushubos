@@ -21,7 +21,7 @@
 #require ${COREBASE}/meta/recipes-bsp/u-boot/u-boot.inc
 require u-boot.inc
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=a2c678cfd4a4d97135585cad908541c6"

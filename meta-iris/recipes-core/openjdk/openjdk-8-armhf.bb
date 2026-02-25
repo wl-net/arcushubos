@@ -32,19 +32,19 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
 SRC_URI = " \
-	https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u482-b08/OpenJDK8U-jdk_arm_linux_hotspot_8u482b08.tar.gz \
+	https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u482-b08/OpenJDK8U-jdk:arm_linux_hotspot_8u482b08.tar.gz \
 	file://iris-java.security \
 	"
 SRC_URI[sha256sum] = "1d0d16394e2fe637f9eb8e73e63ea6fe9ceee98337c0527aa058cee777ad638a"
 
-FILES_${PN} += "/usr/lib/jvm/java-8-openjdk"
+FILES:${PN} += "/usr/lib/jvm/java-8-openjdk"
 
-ALLOW_EMPTY_${PN} = "1"
-INSANE_SKIP_${PN} = "installed-vs-shipped already-stripped"
+ALLOW_EMPTY:${PN} = "1"
+INSANE_SKIP:${PN} = "installed-vs-shipped already-stripped"
 
 # Pre-built binaries — skip rpmdeps ELF scanning so internal cross-references
 # (e.g. libjawt→libawt, libsplashscreen→libX11) don't become RPM Requires.
-SKIP_FILEDEPS_${PN} = "1"
+SKIP_FILEDEPS:${PN} = "1"
 
 # Rename the date-stamped extracted directory to a deterministic name
 do_unpack_fixup () {

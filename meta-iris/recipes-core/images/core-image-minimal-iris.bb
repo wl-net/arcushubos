@@ -48,7 +48,7 @@ IMAGE_INSTALL = "packagegroup-core-boot \
 IMAGE_LINGUAS = " "
 
 # Remove some packages that we really don't want
-PACKAGE_EXCLUDE_pn-core-image-minimal-iris = "rhino jamvm cacao \
+PACKAGE_EXCLUDE:pn-core-image-minimal-iris = "rhino jamvm cacao \
                                            virtual/java-native \
                                            virtual/java-initial \
                                            "

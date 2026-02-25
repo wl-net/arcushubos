@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 # Use our default init file and patches
 SRC_URI += " \
@@ -19,7 +19,7 @@ EXTRA_OECONF += "\
 "
 
 # Replace init file
-do_compile_prepend() {
+do_compile:prepend() {
     cp ${WORKDIR}/bluetooth.init ${WORKDIR}/init
 }
 

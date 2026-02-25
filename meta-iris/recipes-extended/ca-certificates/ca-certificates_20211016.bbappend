@@ -1,6 +1,6 @@
 
 # IRIS - add in java cacerts keystore
-FILES_${PN} += "/usr/lib/jvm/java-8-openjdk/jre/lib/security/cacerts"
+FILES:${PN} += "/usr/lib/jvm/java-8-openjdk/jre/lib/security/cacerts"
 
 # Need to create default keystore file for agent use
 do_install () {
