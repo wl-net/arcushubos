@@ -1,6 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 Date: Thu, 17 Oct 2019 11:40:34 -0400
 Subject: [PATCH] Fix MMC numbering via DT aliases for Iris Hub V2
+Upstream-Status: Inappropriate [Iris Hub V2 specific]
 
 The Iris Hub V2 requires the eMMC to be mmcblk0 and SD card to be mmcblk1
 for the U-Boot/kernel partition layout to work correctly.

@@ -1,6 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 Date: Wed, 22 Nov 2017 15:45:17 -0500
 Subject: [PATCH] Iris dtsi config changes for Hub V2
+Upstream-Status: Inappropriate [Iris Hub V2 specific]
 
 Customize am335x BeagleBone Black device tree for Iris Hub V2:
 - Rename LEDs to green/yellow/red, disable default triggers

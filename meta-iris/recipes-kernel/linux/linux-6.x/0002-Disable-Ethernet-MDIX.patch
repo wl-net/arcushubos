@@ -1,6 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 Date: Sat, 19 Dec 2015 06:00:37 -0500
 Subject: [PATCH] Disable Ethernet Auto-MDIX on LAN8710 PHY
+Upstream-Status: Inappropriate [Iris Hub V2 specific]
 
 Iris Hub V2 requires Auto-MDIX disabled on the LAN8710 Ethernet PHY.
 This patch modifies the SMSC PHY driver to disable MDIX during init
