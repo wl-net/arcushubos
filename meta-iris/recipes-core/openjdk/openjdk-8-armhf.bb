@@ -32,7 +32,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
 SRC_URI = " \
-	https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u482-b08/OpenJDK8U-jdk:arm_linux_hotspot_8u482b08.tar.gz \
+	https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u482-b08/OpenJDK8U-jdk_arm_linux_hotspot_8u482b08.tar.gz \
 	file://iris-java.security \
 	"
 SRC_URI[sha256sum] = "1d0d16394e2fe637f9eb8e73e63ea6fe9ceee98337c0527aa058cee777ad638a"
