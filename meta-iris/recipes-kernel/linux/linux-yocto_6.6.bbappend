@@ -27,6 +27,5 @@ SRC_URI += " \
 	file://serial.cfg \
 	file://debug.cfg \
 	file://0001-Iris-dtsi-config-changes.patch \
-	file://0003-Fix-mmc-numbering-via-DT-aliases.patch \
 	file://0002-Disable-Ethernet-MDIX.patch \
 	"
