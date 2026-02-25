@@ -232,10 +232,10 @@ typedef enum
 #define UDHCPC_TERMINATE        "kill -9 $(cat /var/run/udhcpc.eth0.pid)"
 #define UDHCPC_WIFI_TERMINATE   "kill -9 $(cat /var/run/udhcpc.wlan0.pid)"
 
-// Serial ports we use
-#define ZWAVE_UART              "/dev/ttyO1"
-#define ZIGBEE_UART             "/dev/ttyO2"
-#define BLE_UART                "/dev/ttyO4"
+// Serial ports we use (kernel 5.4+ uses ttyS instead of ttyO)
+#define ZWAVE_UART              "/dev/ttyS1"
+#define ZIGBEE_UART             "/dev/ttyS2"
+#define BLE_UART                "/dev/ttyS4"
 
 // Serial mode
 #define FLOW_CONTROL_NONE       0
