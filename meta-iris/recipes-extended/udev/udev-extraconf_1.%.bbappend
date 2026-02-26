@@ -1,7 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 # Use our configuration files
-SRC_URI += "file://mount.blacklist \
+SRC_URI += "file://mount.ignorelist \
 	    file://mount.sh \
 	    "
 

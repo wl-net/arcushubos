@@ -1,13 +1,8 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-Date: Sat, 19 Dec 2015 06:00:37 -0500
-Subject: [PATCH] Disable Ethernet Auto-MDIX on LAN8710 PHY
+From 34d6cc5e58949a98ff784584bafd190d23cc9dbb Mon Sep 17 00:00:00 2001
+From: Andrew Sorensen <andrew@andrewsorensen.net>
+Date: Wed, 25 Feb 2026 10:19:11 -0800
+Subject: [PATCH 2/2] Disable Ethernet Auto-MDIX on LAN8710 PHY
 Upstream-Status: Inappropriate [Iris Hub V2 specific]
-
-Iris Hub V2 requires Auto-MDIX disabled on the LAN8710 Ethernet PHY.
-This patch modifies the SMSC PHY driver to disable MDIX during init
-and adds the davinci_mdio probe hook to call config_init early.
-
-Adapted for kernel 6.6 PHY driver API.
 
 ---
  drivers/net/ethernet/ti/davinci_mdio.c |  5 +++++
@@ -16,12 +11,12 @@ Adapted for kernel 6.6 PHY driver API.
  3 files changed, 28 insertions(+)
 
 diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
-index 0cca9de..824931a 100644
+index 89b6d23e9937..f8f9155d8ff3 100644
 --- a/drivers/net/ethernet/ti/davinci_mdio.c
 +++ b/drivers/net/ethernet/ti/davinci_mdio.c
-@@ -400,6 +400,11 @@ static int davinci_mdio_probe(struct platform_device *pdev)
+@@ -662,6 +662,11 @@ static int davinci_mdio_probe(struct platform_device *pdev)
  			dev_info(dev, "phy[%d]: device %s, driver %s\n",
- 				 phy->addr, dev_name(&phy->dev),
+ 				 phy->mdio.addr, phydev_name(phy),
  				 phy->drv ? phy->drv->name : "unknown");
 +			// IRIS CHANGES
 +			// Call config_init to disable MDIX
@@ -30,14 +25,14 @@ index 0cca9de..824931a 100644
 +			// IRIS CHANGES
  		}
  	}
-
+ 
 diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
-index 11f3481..b3f2d2e 100644
+index c88edb19d2e7..3b5ec60cf6c7 100644
 --- a/drivers/net/phy/smsc.c
 +++ b/drivers/net/phy/smsc.c
-@@ -43,6 +43,22 @@ static int smsc_phy_ack_interrupt(struct phy_device *phydev)
-
- static int smsc_phy_config_init(struct phy_device *phydev)
+@@ -136,9 +136,26 @@ EXPORT_SYMBOL_GPL(smsc_phy_config_init);
+ 
+ static int smsc_phy_reset(struct phy_device *phydev)
  {
 +        // IRIS CHANGES
 +#if 1
@@ -58,22 +53,18 @@ index 11f3481..b3f2d2e 100644
  	int rc = phy_read(phydev, MII_LAN83C185_SPECIAL_MODES);
  	if (rc < 0)
  		return rc;
-@@ -76,6 +92,7 @@ static int smsc_phy_config_init(struct phy_device *phydev)
- 		       rc | MII_LAN83C185_EDPWRDOWN);
- 	if (rc < 0)
- 		return rc;
 +#endif // IRIS CHANGES
-
- 	return smsc_phy_ack_interrupt (phydev);
- }
+ 
+ 	/* If the SMSC PHY is in power down mode, then set it
+ 	 * in all capable mode before using it.
 diff --git a/include/linux/smscphy.h b/include/linux/smscphy.h
-index f4bf16e..ca6d3d5 100644
+index 1a6a851d2cf8..6512da95da05 100644
 --- a/include/linux/smscphy.h
 +++ b/include/linux/smscphy.h
-@@ -27,4 +27,10 @@
- #define MII_LAN83C185_MODE_POWERDOWN 0xC0 /* Power Down mode */
- #define MII_LAN83C185_MODE_ALL       0xE0 /* All capable mode */
-
+@@ -72,4 +72,10 @@ int smsc_phy_probe(struct phy_device *phydev);
+ 
+ #define MII_LAN874X_PHY_PME_SELF_CLEAR_DELAY	0x1000 /* 81 milliseconds */
+ 
 +// IRIS CHANGES
 +#define MII_LAN8710_SCSI  27 /* Special Control/Status register */
 +#define MII_LAN8710_SCSI_AMDIXCTRL (1<<15) /* Flag to disable Auto-MDIX */
@@ -81,5 +72,6 @@ index f4bf16e..ca6d3d5 100644
 +// IRIS CHANGES
 +
  #endif /* __LINUX_SMSCPHY_H__ */
---
-1.9.1
+-- 
+2.39.5
+

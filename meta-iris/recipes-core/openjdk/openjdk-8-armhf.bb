@@ -22,7 +22,7 @@ SUMMARY = "Adoptium Temurin pre-built armhf OpenJDK 8 binaries"
 PR = "r1"
 S = "${WORKDIR}"
 
-DEPENDS = "zip-native"
+DEPENDS = "zip-native unzip-native"
 
 libdir_jvm ?= "${libdir}/jvm"
 JDK_HOME = "${libdir_jvm}/java-8-openjdk"
@@ -71,7 +71,11 @@ do_install() {
 	rm -rf ${D}${JDK_HOME}/DISCLAIMER
 	rm -rf ${D}${JDK_HOME}/LICENSE
 	rm -rf ${D}${JDK_HOME}/THIRD_PARTY_README
+	rm -rf ${D}${JDK_HOME}/NOTICE
 	rm -rf ${D}${JDK_HOME}/release
+	rm -rf ${D}${JDK_HOME}/jre/LICENSE
+	rm -rf ${D}${JDK_HOME}/jre/ASSEMBLY_EXCEPTION
+	rm -rf ${D}${JDK_HOME}/jre/THIRD_PARTY_README
 
 	# Remove unneeded top-level binaries
         rm -rf ${D}${JDK_HOME}/bin/extcheck
@@ -110,6 +114,12 @@ do_install() {
         rm -rf ${D}${JDK_HOME}/bin/wsgen
         rm -rf ${D}${JDK_HOME}/bin/wsimport
         rm -rf ${D}${JDK_HOME}/bin/xjc
+        rm -rf ${D}${JDK_HOME}/bin/clhsdb
+        rm -rf ${D}${JDK_HOME}/bin/hsdb
+        rm -rf ${D}${JDK_HOME}/bin/jfr
+        rm -rf ${D}${JDK_HOME}/bin/jinfo
+        rm -rf ${D}${JDK_HOME}/bin/jmap
+        rm -rf ${D}${JDK_HOME}/bin/jstack
 
 	# Remove unneeded top-level libraries
         rm -rf ${D}${JDK_HOME}/lib/ct.sym
@@ -118,6 +128,7 @@ do_install() {
         rm -rf ${D}${JDK_HOME}/lib/jexec
         rm -rf ${D}${JDK_HOME}/lib/orb.idl
         rm -rf ${D}${JDK_HOME}/lib/aarch32/libjawt.so
+        rm -rf ${D}${JDK_HOME}/lib/jconsole.jar
 
         # Remove unneeded jre binaries
         rm -rf ${D}${JDK_HOME}/jre/bin/jjs
@@ -171,7 +182,7 @@ do_install() {
         # Removing unneeded packages from rt.jar saves ~15 MB.
         mkdir ${D}${JDK_HOME}/jre/lib/rt_repackage
         cd ${D}${JDK_HOME}/jre/lib/rt_repackage
-                /usr/bin/jar xf ../rt.jar
+                unzip -q -o ../rt.jar
                 rm -rf  java/applet \
                         java/awt \
                         java/rmi \
@@ -234,7 +245,7 @@ do_install() {
         # Removing unneeded packages from resources.jar saves 564 KB.
         mkdir ${D}${JDK_HOME}/jre/lib/resources_repackage
         cd ${D}${JDK_HOME}/jre/lib/resources_repackage
-                /usr/bin/jar xf ../resources.jar
+                unzip -q -o ../resources.jar
                 rm -rf  sun/print \
                         sun/rmi \
                         com/sun/imageio \
@@ -254,7 +265,7 @@ do_install() {
         # Removing unneeded packages from tools.jar saves over 6M
         mkdir ${D}${JDK_HOME}/lib/resources_repackage
         cd ${D}${JDK_HOME}/lib/resources_repackage
-                /usr/bin/jar xf ../tools.jar
+                unzip -q -o ../tools.jar
                 rm -rf  com/sun/codemodel \
                         com/sun/doclint \
                         com/sun/jarsigner \
@@ -304,7 +315,7 @@ do_install() {
         # Removing unneeded packages from charsets.jar saves 2 MB.
         mkdir ${D}${JDK_HOME}/jre/lib/charsets_repackage
         cd ${D}${JDK_HOME}/jre/lib/charsets_repackage
-                /usr/bin/jar xf ../charsets.jar
+                unzip -q -o ../charsets.jar
             rm -rf sun/awt
         find . -type f |grep -iv iso |grep -iv ascii |grep -iv double |xargs rm -rf
 

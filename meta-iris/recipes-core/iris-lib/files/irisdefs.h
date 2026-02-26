@@ -131,12 +131,12 @@ typedef enum
 
 // Platform specific GPIO related defines
 #if beaglebone_yocto
-// USB Over-current signals
-#define USB0_OC_GPIO_VALUE_FILE "/sys/class/gpio/gpio116/value"
-#define USB1_OC_GPIO_VALUE_FILE "/sys/class/gpio/gpio58/value"
+// USB Over-current signals (symlinks created by irisinit)
+#define USB0_OC_GPIO_VALUE_FILE "/tmp/io/usb0OcValue"
+#define USB1_OC_GPIO_VALUE_FILE "/tmp/io/usb1OcValue"
 
-// Battery hold gpio
-#define BTRY_HOLD_GPIO_VALUE_FILE "/sys/class/gpio/gpio117/value"
+// Battery hold gpio (symlink created by irisinit)
+#define BTRY_HOLD_GPIO_VALUE_FILE "/tmp/io/batteryHold"
 
 // Battery voltage ADC port
 #define BTRY_VOLTAGE_VALUE_FILE "/sys/bus/iio/devices/iio:device0/in_voltage6_raw"

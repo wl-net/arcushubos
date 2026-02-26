@@ -543,7 +543,7 @@ static gboolean sshCheckAccess(gpointer data)
 
                 /* Verify key */
                 snprintf(cmd, sizeof(cmd),
-                       "openssl rsautl -verify -in %s -pubin -inkey %s -out %s",
+                       "openssl rsautl -verify -in %s -pubin -inkey %s -out %s 2>/dev/null",
                          filename, BUILD_PUBLIC_KEY, TEMP_HUB_ID);
                 if (system(cmd)) {
                     continue;

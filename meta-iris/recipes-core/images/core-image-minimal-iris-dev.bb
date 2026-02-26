@@ -153,5 +153,4 @@ set_file_links() {
 
 # We do not want to write a timestamp as we have moved this file to
 #  /data/config/timestamp which doesn't exist when the rootfs is made
-rootfs_update_timestamp () {
-}
+ROOTFS_POSTPROCESS_COMMAND:remove = "rootfs_update_timestamp "
