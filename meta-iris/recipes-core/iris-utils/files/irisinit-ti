@@ -255,6 +255,14 @@ irisinitd
 # Launch battery daemon
 batteryd
 
+# Map serial ports — kernel 5.4+ renamed OMAP ttyO* to ttyS*
+ln -s /dev/ttyS1 /dev/ttyO1
+ln -s /dev/ttyS2 /dev/ttyO2
+ln -s /dev/ttyS4 /dev/ttyO4
+chmod 666 /dev/ttyS1
+chmod 666 /dev/ttyS2
+chmod 666 /dev/ttyS4
+
 # Launch ifplugd to keep track of interface up/down handling
 /etc/init.d/ifplugd start
 

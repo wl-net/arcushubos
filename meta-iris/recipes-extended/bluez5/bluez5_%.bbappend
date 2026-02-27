@@ -1,9 +1,8 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-# Use our default init file and patches
+# Use our default init file (GATT access patch no longer needed — bluez 5.72 allows it by default)
 SRC_URI += " \
 	file://bluetooth.init \
-	file://0001-Allow-GATT-access.patch \
 	"
 
 # Strip down package, in particular remove readline due to GPLv3 issues!

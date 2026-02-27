@@ -315,6 +315,15 @@ batteryd
 # Launch ifplugd to keep track of interface up/down handling
 /etc/init.d/ifplugd start
 
+# Ensure eth0 gets configured — ifplugd may miss the initial link state
+# due to MAC address change timing. Wait for link then run udhcpc directly.
+(   for i in 1 2 3 4 5; do
+        ip link show eth0 | grep -q LOWER_UP && break
+        sleep 2
+    done
+    udhcpc -i eth0 -n -q 2>/dev/null
+) &
+
 # Map serial ports to expected ones and change permissions for agent use
 ln -s /dev/ttymxc4 /dev/ttyO1
 ln -s /dev/ttymxc1 /dev/ttyO2

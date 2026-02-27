@@ -109,7 +109,7 @@ USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-u 1000 -d /home/agent -s /bin/sh -G dialout agent"
 
 # Consider any warnings errors (well, not ignored results or format truncation)
-CFLAGS += "-Wall -Werror -Wno-unused-result -Wno-format-truncation"
+CFLAGS += "-Wall -Werror -Wno-unused-result -Wno-format-truncation -Wno-stringop-truncation"
 
 # Add platform specific defines
 TARGET_MACHINE := "${@'${MACHINE}'.replace('-', '_')}"

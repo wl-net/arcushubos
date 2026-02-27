@@ -396,8 +396,8 @@ static gboolean pwrDownButtonHandler(GIOChannel *channel, GIOCondition cond,
         time_t delta = time(NULL) - pwrDownTime;
         if (delta >= POWER_DOWN_PERIOD) {
             syslog(LOG_ERR,
-                   "Power down button pushed for %ld seconds - halting!",
-                   delta);
+                   "Power down button pushed for %lld seconds - halting!",
+                   (long long)delta);
 
             // Set LED pattern then wait (5 seconds in total)
             setLedMode("turning-off");
