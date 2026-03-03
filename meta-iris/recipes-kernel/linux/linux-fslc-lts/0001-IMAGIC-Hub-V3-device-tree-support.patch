@@ -70,7 +70,7 @@ new file mode 100644
 index 000000000..97bdd5ca1
 --- /dev/null
 +++ b/arch/arm/boot/dts/nxp/imx/imx6qdl-imagic.dtsi
-@@ -0,0 +1,616 @@
+@@ -0,0 +1,595 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Device tree for Arcus Hub V3 (IMAGIC) boards.
@@ -144,30 +144,10 @@ index 000000000..97bdd5ca1
 +		};
 +	};
 +
-+	gpio-keys {
-+		compatible = "gpio-keys";
-+
-+		button-voldown {
-+			label = "Volume Down";
-+			gpios = <&gpio4 31 GPIO_ACTIVE_LOW>;
-+			wakeup-source;
-+			linux,code = <KEY_VOLUMEDOWN>;
-+		};
-+
-+		button-volup {
-+			label = "Volume Up";
-+			gpios = <&gpio4 26 GPIO_ACTIVE_LOW>;
-+			wakeup-source;
-+			linux,code = <KEY_VOLUMEUP>;
-+		};
-+
-+		button-power {
-+			label = "Power Button";
-+			gpios = <&gpio4 27 GPIO_ACTIVE_LOW>;
-+			wakeup-source;
-+			linux,code = <KEY_POWER>;
-+		};
-+	};
++	/* Buttons (GPIO4_26, GPIO4_27, GPIO4_31) are handled by irisinitd
++	 * via sysfs GPIO polling — do NOT add a gpio-keys node here or
++	 * the kernel driver will claim the GPIOs and block userspace export.
++	 */
 +
 +	sound {
 +		compatible = "fsl,imx-audio-nau8810";
@@ -315,7 +295,6 @@ index 000000000..97bdd5ca1
 +	pcf8563@51 {
 +		compatible = "nxp,pcf8563";
 +		reg = <0x51>;
-+		status = "disabled";
 +	};
 +};
 +

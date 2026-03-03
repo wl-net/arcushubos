@@ -6,7 +6,8 @@ Subject: [PATCH 3/3] IMAGIC Hub V3 sound machine driver
 Port imx-nau8810 ASoC machine driver to 6.6 API:
 - Use component-based DAI links (cpus/codecs/platforms arrays)
 - Replace rtd->codec_dai with asoc_rtd_to_codec(rtd, 0)
-- Replace SND_SOC_DAIFMT_CBM_CFM with SND_SOC_DAIFMT_CBP_CFP
+- Use CBC_CFC (codec-slave / SSI-master) to avoid BCLK routing issues
+- AUDMUX drives BCLK/FS from SSI out to codec pads
 - Use remove_new callback signature
 - Use dev_err_probe for card registration
 
@@ -58,7 +59,7 @@ new file mode 100644
 index 000000000..762434059
 --- /dev/null
 +++ b/sound/soc/fsl/imx-nau8810.c
-@@ -0,0 +1,332 @@
+@@ -0,0 +1,341 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +//
 +// ASoC machine driver for i.MX boards with NAU8810 codec (IMAGIC Hub V3)
@@ -110,9 +111,15 @@ index 000000000..762434059
 +		return 0;
 +
 +	fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-+	      SND_SOC_DAIFMT_CBP_CFP;
++	      SND_SOC_DAIFMT_CBC_CFC;
 +
-+	ret = snd_soc_dai_set_fmt(cpu_dai, fmt);
++	/* CBC_CFC = codec is consumer (slave).  Flip for the CPU DAI so
++	 * the SSI becomes the provider (master) and generates BCLK/FS
++	 * from its own baud clock — avoids depending on the codec's
++	 * BCLK output reaching the SSI through the AUDMUX.
++	 */
++	ret = snd_soc_dai_set_fmt(cpu_dai,
++				  snd_soc_daifmt_clock_provider_flipped(fmt));
 +	if (ret) {
 +		dev_err(dev, "failed to set cpu dai fmt: %d\n", ret);
 +		return ret;
@@ -232,19 +239,22 @@ index 000000000..762434059
 +
 +	int_port--;
 +	ext_port--;
++	/* AUDMUX: SSI is master — internal port passes SSI's own clocks
++	 * through; external port drives BCLK/FS out to the codec pads.
++	 */
 +	ret = imx_audmux_v2_configure_port(int_port,
-+			IMX_AUDMUX_V2_PTCR_SYN |
-+			IMX_AUDMUX_V2_PTCR_TFSEL(ext_port) |
-+			IMX_AUDMUX_V2_PTCR_TCSEL(ext_port) |
-+			IMX_AUDMUX_V2_PTCR_TFSDIR |
-+			IMX_AUDMUX_V2_PTCR_TCLKDIR,
++			IMX_AUDMUX_V2_PTCR_SYN,
 +			IMX_AUDMUX_V2_PDCR_RXDSEL(ext_port));
 +	if (ret) {
 +		dev_err(&pdev->dev, "audmux internal port setup failed\n");
 +		return ret;
 +	}
 +	ret = imx_audmux_v2_configure_port(ext_port,
-+			IMX_AUDMUX_V2_PTCR_SYN,
++			IMX_AUDMUX_V2_PTCR_SYN |
++			IMX_AUDMUX_V2_PTCR_TFSEL(int_port) |
++			IMX_AUDMUX_V2_PTCR_TCSEL(int_port) |
++			IMX_AUDMUX_V2_PTCR_TFSDIR |
++			IMX_AUDMUX_V2_PTCR_TCLKDIR,
 +			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port));
 +	if (ret) {
 +		dev_err(&pdev->dev, "audmux external port setup failed\n");
@@ -321,7 +331,7 @@ index 000000000..762434059
 +	data->dai.init = &imx_nau8810_dai_init;
 +	data->dai.ops = &imx_hifi_ops;
 +	data->dai.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-+			    SND_SOC_DAIFMT_CBP_CFP;
++			    SND_SOC_DAIFMT_CBC_CFC;
 +
 +	data->card.dev = &pdev->dev;
 +	ret = snd_soc_of_parse_card_name(&data->card, "model");

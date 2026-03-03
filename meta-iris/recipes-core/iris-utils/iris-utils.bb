@@ -106,7 +106,7 @@ USERADD_PACKAGES = "${PN}"
 # USERADD_PARAM specifies command line options to pass to the
 # useradd command. Multiple users can be created by separating
 # the commands with a semicolon.
-USERADD_PARAM:${PN} = "-u 1000 -d /home/agent -s /bin/sh -G dialout agent"
+USERADD_PARAM:${PN} = "-u 1000 -d /home/agent -s /bin/sh -G dialout,audio agent"
 
 # Consider any warnings errors (well, not ignored results or format truncation)
 CFLAGS += "-Wall -Werror -Wno-unused-result -Wno-format-truncation -Wno-stringop-truncation"
