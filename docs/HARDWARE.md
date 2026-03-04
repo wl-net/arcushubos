@@ -84,6 +84,11 @@ GPIO bank hardware addresses used for dynamic base lookup:
 - Bank 2: `481ac000`
 - Bank 3: `481ae000`
 
+### Buttons
+
+One button: reset (GPIO1_12). See [Button Behavior](#button-behavior) below
+for hold times and actions.
+
 ### LEDs
 
 Three discrete LEDs controlled via GPIO1:
@@ -293,13 +298,18 @@ V3 uses an external watchdog chip driven by two GPIOs.
 
 ### Buttons
 
-Polled via sysfs (not gpio-keys):
+Three buttons, polled via sysfs (not gpio-keys):
 
 | Button | GPIO | Sysfs # |
 |--------|------|---------|
 | Reset | GPIO4_26 | 122 |
 | Power Down | GPIO4_27 | 123 |
 | Iris Button | GPIO4_31 | 127 |
+
+The **Power Down** button halts the hub if held for 10 seconds. The **Iris
+Button** re-enters BLE provisioning if held for 5 seconds (release images
+only). See [Button Behavior](#button-behavior) below for reset button hold
+times.
 
 ### GPIO Map (Radio and Power)
 
@@ -463,6 +473,49 @@ on production hardware:
 LCD-related pin mux pads in the device tree are reused for UART flow control,
 AUDMUX audio routing, and GPIO functions — they are **not** connected to any
 display hardware.
+
+---
+
+## Button Behavior
+
+### Reset Button (Both Platforms)
+
+The reset button (GPIO1_12 on V2, GPIO4_26 on V3) triggers escalating actions
+based on hold duration. LED patterns change as you hold to indicate the current
+action level:
+
+| Hold Time | Action | LED Pattern |
+|-----------|--------|-------------|
+| < 1 s | Ignored | — |
+| 1–9 s | Reboot | `button-reboot` |
+| 10–19 s | Soft reset (agent config reset) | `button-soft-reset` |
+| 20+ s | Factory default (full reset) | `button-factory-default` |
+
+The action fires when the button is **released** after reaching the threshold.
+
+- **Reboot:** calls `hub_restart now`
+- **Soft reset:** creates `/data/agent/.soft_reset` marker, then reboots — the
+  agent clears its configuration on next start
+- **Factory default:** calls `factory_default` which wipes `/data`, resets all
+  radios (Zigbee, Z-Wave, BLE), and reboots
+
+### Reset Button During U-Boot
+
+Holding the reset button during U-Boot startup (before Linux boots) flips the
+A/B partition selection, allowing recovery from a bad firmware. See
+[UBOOT.md](UBOOT.md) for details.
+
+### Iris Button (Hub V3 Only)
+
+| Hold Time | Action |
+|-----------|--------|
+| 5+ s | Re-enter BLE provisioning (release images only) |
+
+### Power Down Button (Hub V3 Only)
+
+| Hold Time | Action |
+|-----------|--------|
+| 10+ s | Halt the CPU (safe power off) |
 
 ---
 

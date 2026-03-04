@@ -121,6 +121,8 @@ Detailed documentation is in the [docs/](docs/) directory:
 - [**HARDWARE.md**](docs/HARDWARE.md) — Hardware reference for both platforms: SoC, radios, GPIOs, peripherals, power management
 - [**UBOOT.md**](docs/UBOOT.md) — U-Boot bootloader: A/B boot selection, environment, patches, installation
 - [**SYSTEM.md**](docs/SYSTEM.md) — System daemons, utilities, radio flash tools, key source files
+- [**OTA-UPDATES.md**](docs/OTA-UPDATES.md) — OTA update flow: download, validation, A/B installation, rollback
+- [**DATA-PARTITION.md**](docs/DATA-PARTITION.md) — /data partition layout, persistence behavior, factory default
 - [**FIRMWARE-FORMAT.md**](docs/FIRMWARE-FORMAT.md) — Firmware file format, signing/encryption pipeline, validation flow
 - [**UPGRADE.md**](docs/UPGRADE.md) — Yocto Scarthgap migration notes
 
