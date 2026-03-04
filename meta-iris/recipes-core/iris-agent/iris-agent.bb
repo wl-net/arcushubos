@@ -38,7 +38,6 @@ inherit autotools update-rc.d
 
 # These need to be updated with each agent version change
 AGENT_VERSION="2.13.26-prod"
-SRC_URI[md5sum] = "fad43c41ea6182d1e9d2bd7e2bb9bf6b"
 SRC_URI[sha256sum] = "66685ff6998632cd035fcdfc692aad1a732fa13a5847e3c72f530a264bf3b7a7"
 AGENT_FILE="iris-agent-hub-v2-${AGENT_VERSION}.tar.gz"
 

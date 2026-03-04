@@ -287,6 +287,10 @@ typedef enum
 // Dropbear config directory
 #define DROPBEAR_CONFIG_DIR     "/data/config/dropbear"
 
+// If present, persistently enables SSH (key-only auth when authorized_keys exists)
+#define SSH_ENABLE_FILE         "/data/config/dropbear/ssh_enabled"
+#define SSH_AUTH_KEYS_FILE      "/data/config/dropbear/authorized_keys"
+
 // Maximum battery voltage, for tracking of replaceable batteries
 #define MAX_BATTERY_VOLTAGE     "/data/config/max_voltage"
 

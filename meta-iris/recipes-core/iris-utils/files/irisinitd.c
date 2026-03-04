@@ -481,7 +481,17 @@ static gboolean usbOCHandler(GIOChannel *channel, GIOCondition cond,
 }
 #endif
 
-/* Check if a debug dongle has been inserted with key to allow SSH access */
+/* Check if authorized_keys file exists and is non-empty */
+static int hasAuthorizedKeys(void)
+{
+    struct stat st;
+    if (stat(SSH_AUTH_KEYS_FILE, &st) == 0 && st.st_size > 0)
+        return 1;
+    return 0;
+}
+
+/* Check if a debug dongle has been inserted with key to allow SSH access,
+ * or if persistent SSH has been enabled via ssh_enabled file */
 static gboolean sshCheckAccess(gpointer data)
 {
     FILE *f;
@@ -621,25 +631,69 @@ static gboolean sshCheckAccess(gpointer data)
         }
     }
 
-    /* Allow access? */
-    if (cur_access && !ssh_access) {
-        syslog(LOG_ERR, "Enabling SSH access.");
-        ssh_access = 1;
+    /* Check for persistent SSH enable file */
+    int file_enabled = (access(SSH_ENABLE_FILE, F_OK) != -1);
+    int has_keys = hasAuthorizedKeys();
+
+    /* Determine desired SSH mode:
+     *  0 = off
+     *  1 = on with password auth (debug dongle, or ssh_enabled without keys)
+     *  2 = on with key-only auth (ssh_enabled + keys, no dongle)
+     */
+    int want_mode = 0;
+    if (cur_access) {
+        want_mode = 1;
+    } else if (file_enabled && has_keys) {
+        want_mode = 2;
+    } else if (file_enabled) {
+        want_mode = 1;
+    }
+
+    if (want_mode > 0 && ssh_access <= 0) {
+        /* SSH not running, start it */
+        syslog(LOG_ERR, "Enabling SSH access%s.",
+               want_mode == 2 ? " (key-only)" : "");
+        ssh_access = want_mode;
 
         /* Change permissions on config so agent can remove on factory reset! */
         snprintf(cmd, sizeof(cmd), "chmod 777 %s", DROPBEAR_CONFIG_DIR);
         system(cmd);
 
-        /* Create debug file to signal agent we are in debug mode */
-        snprintf(cmd, sizeof(cmd), "touch %s", DEBUG_ENABLED_FILE);
-        system(cmd);
+        /* Debug dongle sets debug mode flag */
+        if (cur_access) {
+            snprintf(cmd, sizeof(cmd), "touch %s", DEBUG_ENABLED_FILE);
+            system(cmd);
+        }
 
         /* Start SSH if it's not already running */
         if (!IRIS_isSSHEnabled()) {
-            snprintf(cmd, sizeof(cmd), "%s realstart", SSH_INIT_SCRIPT);
+            snprintf(cmd, sizeof(cmd), "%s %s", SSH_INIT_SCRIPT,
+                     want_mode == 2 ? "realstart-keyonly" : "realstart");
             system(cmd);
         }
-    } else if (!cur_access && ssh_access) {
+    } else if (want_mode > 0 && ssh_access > 0 && want_mode != ssh_access) {
+        /* Mode changed (e.g. dongle inserted/removed while ssh_enabled active)
+         * — restart SSH with new settings */
+        syslog(LOG_ERR, "Switching SSH to %s mode.",
+               want_mode == 2 ? "key-only" : "password");
+        ssh_access = want_mode;
+
+        if (cur_access) {
+            snprintf(cmd, sizeof(cmd), "touch %s", DEBUG_ENABLED_FILE);
+            system(cmd);
+        } else {
+            remove(DEBUG_ENABLED_FILE);
+        }
+
+        if (IRIS_isSSHEnabled()) {
+            snprintf(cmd, sizeof(cmd), "%s stop", SSH_INIT_SCRIPT);
+            system(cmd);
+        }
+        snprintf(cmd, sizeof(cmd), "%s %s", SSH_INIT_SCRIPT,
+                 want_mode == 2 ? "realstart-keyonly" : "realstart");
+        system(cmd);
+    } else if (want_mode == 0 && ssh_access > 0) {
+        /* Disable SSH */
         syslog(LOG_ERR, "Disabling SSH access.");
         ssh_access = 0;
 
