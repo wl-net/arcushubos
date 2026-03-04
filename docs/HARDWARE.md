@@ -302,14 +302,145 @@ GPIO6_5) and additional WiFi power enable (GPIO6_16).
 
 ---
 
+## USB
+
+### Hub V2
+
+Two USB ports with separate over-current detection GPIOs:
+- USB0 over-current: GPIO3_20
+- USB1 over-current: GPIO1_26
+- Battery daemon can disable USB ports on battery power to save energy
+
+### Hub V3
+
+- **USB Host 1 (usbh1):** Full-size USB-A port, EHCI host mode, 5V VBUS always-on
+- **USB OTG (usbotg):** ChipIdea dual-role controller (host + device), 5V VBUS via
+  GPIO3_22, over-current detection disabled. OTG features (SRP/HNP/ADP) disabled.
+- Battery daemon controls a single USB port power via GPIO 86 (`/tmp/io/usbPower`)
+
+Kernel USB support includes: mass storage, CDC Ethernet (for 4G), CP210x, FTDI SIO,
+PL2303, and USB Option (4G modem serial).
+
+---
+
+## Cryptographic Accelerators
+
+| Platform | Hardware | Kernel Config |
+|----------|----------|---------------|
+| Hub V2 | None (software-only crypto) | — |
+| Hub V3 | i.MX6 CAAM (AES, SHA, HMAC) | `CONFIG_CRYPTO_DEV_FSL_CAAM=y` |
+| Hub V3 | i.MX6 MXS DCP | `CONFIG_CRYPTO_DEV_MXS_DCP=y` |
+
+The CAAM (Cryptographic Acceleration and Assurance Module) provides hardware-backed
+AES, SHA, and HMAC acceleration on the Hub V3. Hub V2 uses software implementations.
+
+---
+
+## Thermal Monitoring
+
+### Hub V2
+
+AM335x internal temperature sensor via bandgap. No active thermal management
+in the hub software.
+
+### Hub V3
+
+- i.MX6 integrated thermal sensor: `CONFIG_IMX_THERMAL=y`
+- CPU thermal throttling: `CONFIG_CPU_THERMAL=y`
+- Writable thermal trip points: `CONFIG_THERMAL_WRITABLE_TRIPS=y`
+- IIO sensor exposure: `CONFIG_SENSORS_IIO_HWMON=y`
+
+---
+
+## RTC
+
+### Hub V2
+
+The AM335x internal RTC at 0x44E3E000 is **disabled** — its clocks are gated and
+probing it causes a bus fault. Must be disabled in the device tree; on kernel 5.4+
+the parent `target-module@3e000` node must also be disabled to prevent the ti-sysc
+driver from probing. No external RTC.
+
+### Hub V3
+
+Two RTC sources:
+- **NXP PCF8563** — external battery-backed RTC on I2C2 at address 0x51
+  (`CONFIG_RTC_DRV_PCF8563=y`). Standard coin cell backup (CR2032).
+- **i.MX6 SNVS RTC** — SoC internal RTC in the Secure Non-Volatile Storage block
+  (`CONFIG_RTC_DRV_SNVS=y`). Also provides system poweroff via `snvs_poweroff`.
+
+---
+
+## PCIe (Hub V3)
+
+The i.MX6 PCIe host controller is present but **disabled** in the device tree:
+- Reset GPIO: GPIO1_8 (active-low)
+- 3.3V power regulator for mPCIe slot (`reg_pcie`, always-on)
+- Kernel support: `CONFIG_PCI_IMX6_HOST=y`, `CONFIG_PCI_MSI=y`
+
+The mPCIe slot can accept optional expansion modules (WiFi/4G adapters), though
+the production hub uses SDIO for WiFi and UART for 4G instead.
+
+---
+
+## Voltage Regulators (Hub V3)
+
+Fixed voltage regulators defined in the device tree:
+
+| Regulator | Voltage | Control | Purpose |
+|-----------|---------|---------|---------|
+| `reg_usb_otg_vbus` | 5V | GPIO3_22 | USB OTG VBUS |
+| `reg_usb_h1_vbus` | 5V | Always-on | USB host VBUS |
+| `reg_pcie` | 3.3V | GPIO2_31 | PCIe/mPCIe power |
+| `reg_sensor` | 3.3V | Always-on | Sensor supply (500 us startup) |
+
+---
+
+## eMMC Health Monitoring
+
+The `emmcparm` tool (Micron-provided, installed to `/usr/bin/`) reads eMMC device
+health via ioctl:
+
+| Option | Function |
+|--------|----------|
+| `-i` | Read CID/CSD via sysfs (manufacturer, serial, date) |
+| `-I` | Read CID/CSD via CMD8/9/10 |
+| `-S` | Query spare block count and usage percentage |
+| `-B` | Read initial and runtime bad block counts |
+| `-E` | Read MLC and SLC area erase count statistics (min/max/avg) |
+
+Useful for monitoring flash wear on deployed hubs.
+
+---
+
+## Unused/Disabled Interfaces
+
+The following interfaces are defined in the Hub V3 device tree but **not used**
+on production hardware:
+
+| Interface | Chip | Bus | Status |
+|-----------|------|-----|--------|
+| Touchscreen | EDT FT5406 | I2C3 (0x38) | Disabled — no display panel |
+| Resistive touch | ADS7846 | SPI ECSPI1 CS1 | Disabled |
+| NFC | ST 95HF | SPI ECSPI2 CS0 | Disabled in software |
+| PCIe host | — | i.MX6 PCIe | Disabled — uses SDIO/UART instead |
+| Display | — | — | No LVDS/DPI/HDMI hardware present |
+| Camera | — | — | CSI pads reused for GPIOs and clocks |
+
+LCD-related pin mux pads in the device tree are reused for UART flow control,
+AUDMUX audio routing, and GPIO functions — they are **not** connected to any
+display hardware.
+
+---
+
 ## Platform Comparison
 
 | Feature | Hub V2 | Hub V3 |
 |---------|--------|--------|
 | SoC | TI AM335x (Cortex-A8) | NXP i.MX6DL (Cortex-A9 x2) |
 | RAM | 512 MiB | 1 GiB |
-| Storage | eMMC (mmcblk0) | eMMC (mmcblk2) |
-| SD card | No | Yes |
+| Storage | eMMC (mmcblk0) | eMMC (mmcblk2, 8-bit) |
+| SD card | No | Yes (usdhc3) |
 | WiFi | No | BCM43362 (SDIO) |
 | 4G modem | No | Quectel EC25-A |
 | Audio | No | NAU8810 + LM4871 amplifiers |
@@ -321,6 +452,11 @@ GPIO6_5) and additional WiFi power enable (GPIO6_16).
 | Zigbee | EM3587 (UART) | Silicon Labs (SPI) |
 | BLE | TI CC2541 | Broadcom (HCI UART) |
 | Ethernet | Yes | AR8035 RGMII |
+| USB | 2 host ports | 1 host + 1 OTG |
+| Crypto HW | None | CAAM + MXS DCP |
+| RTC | Disabled (internal) | PCF8563 (external) + SNVS |
+| Thermal | Bandgap sensor | IMX thermal + CPU throttling |
+| PCIe | No | Yes (disabled, mPCIe slot) |
 | Serial naming | ttyS* | ttymxc* |
 | Kernel format | uImage | zImage |
 | U-Boot location | FAT partition (p1) | eMMC boot partition (mmcblk2boot0) |
