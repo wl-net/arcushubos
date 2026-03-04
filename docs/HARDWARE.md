@@ -96,6 +96,16 @@ Three discrete LEDs controlled via GPIO1:
 
 All three solid = U-Boot is running, kernel not yet booted.
 
+### Networking
+
+**Ethernet:**
+- Controller: TI CPSW (Common Platform Switch)
+- PHY: auto-detected via MDIO (SMSC PHY driver enabled)
+- Interface mode: MII (4-bit TX/RX data lines)
+- PHY reset: GPIO1_8 (active-low, 300 us assert / 50 ms deassert)
+- MAC address: loaded from `/mfg/config/macAddr1` at boot by `irisinit-ti`
+- Only CPSW port 1 is used; port 2 is disabled
+
 ### Buzzer
 
 PWM buzzer on `ehrpwm2B` (GPMC_AD9, pin mux mode 4). Controlled via
@@ -103,7 +113,28 @@ PWM buzzer on `ehrpwm2B` (GPMC_AD9, pin mux mode 4). Controlled via
 
 ### Watchdog
 
-Uses the AM335x internal watchdog (`/dev/watchdog`).
+Uses the AM335x internal watchdog timer at `/dev/watchdog0`. The SoC watchdog
+supports long timeouts, so the system uses a 300-second (5-minute) period.
+
+**Hardware details:**
+- Device: `/dev/watchdog0` (standard Linux watchdog interface)
+- Timeout: 300 seconds (`WATCHDOG_PERIOD`)
+- Poke interval: 150 seconds (`WATCHDOG_POKE_PERIODIC`)
+- Interface: standard `WDIOC_SETTIMEOUT` ioctl, character writes to feed/stop
+
+**Software management** (see [Watchdog Architecture](#watchdog-architecture)
+below for the full multi-layer design):
+- **Dev images:** `irisinitd` opens `/dev/watchdog0`, sets the 300s timeout via
+  `WDIOC_SETTIMEOUT`, then pokes every 150s via a GLib timer callback.
+- **Release images:** the Java agent handles watchdog poking directly;
+  `irisinitd` skips watchdog setup to avoid conflicts.
+- `irislib.c` guards against dual access — `writeWatchdog()` checks `lsof` for
+  an existing handle before writing to the device.
+
+**Feed protocol** (via character writes to `/dev/watchdog0`):
+- `"1"` — start/arm the watchdog
+- `"A"` — feed/poke (any non-`V` character works)
+- `"V"` — magic close (disarm the watchdog)
 
 ### UART Pin Mux
 
@@ -133,8 +164,7 @@ node must also be disabled to prevent the ti-sysc driver from probing it.
 | Storage | eMMC on mmcblk2 (8-bit, SD4/usdhc4) |
 | Machine | `imxdimagic` |
 
-Additional storage interfaces:
-- **SD card slot** on usdhc3 (4-bit, removable, CD on GPIO7_0)
+Additional SDIO interface:
 - **WiFi SDIO** on usdhc1 (non-removable)
 
 ### Boot Chain
@@ -180,7 +210,7 @@ device names across platforms:
 | Radio | Chip | UART | Speed | Flow Control |
 |-------|------|------|-------|--------------|
 | Z-Wave | ZW050x | ttymxc3 (UART4) | 115200 | None |
-| Zigbee | Silicon Labs (EM3587-compatible via SPI) | — | — | — |
+| Zigbee | Silicon Labs EFR32MG1B (SPI) | — | — | — |
 | BLE | Broadcom (via HCI) | ttymxc4 (UART5) | 115200 | Hardware (RTS/CTS) |
 
 ### Networking
@@ -238,10 +268,28 @@ GPIO buzzer on GPIO1_9 via custom `imagic_buzzer` kernel driver (ioctl interface
 
 ### Watchdog
 
-External GPIO-based watchdog:
-- Feed pin: GPIO1_4
-- Enable pin: GPIO1_3
-- Custom kernel driver: `imagic_watchdog`
+External GPIO-based watchdog controlled by the custom `imagic_watchdog` kernel
+driver. The i.MX6 internal watchdog only supports a max 128-second timeout, so
+V3 uses an external watchdog chip driven by two GPIOs.
+
+**Hardware details:**
+- Feed pin: GPIO1_4 (`MX6QDL_PAD_GPIO_4__GPIO1_IO04`)
+- Enable pin: GPIO1_3 (`MX6QDL_PAD_GPIO_3__GPIO1_IO03`)
+- Timeout: 120 seconds (`WATCHDOG_PERIOD`)
+- Poke interval: 60 seconds (`WATCHDOG_POKE_PERIODIC`)
+- Device: `/dev/imagic_watchdog` (misc device)
+- DT compatible: `"imagic,imagic_watchdog"`
+
+**Driver interface** (`imagic_watchdog.c`):
+- Opening the device enables the watchdog (sets enable GPIO high, feeds once)
+- `ioctl(fd, FEED_DOG, 0)` — toggle the feed pin to reset the counter
+- `ioctl(fd, CLOSE_DOG, 0)` — disable the watchdog (sets enable GPIO low)
+- The feed pin toggles state on each feed (high→low→high) rather than pulsing
+- Closing the file descriptor does NOT disable the watchdog (must use
+  `CLOSE_DOG` ioctl)
+
+**Software management** mirrors V2 but through `/dev/imagic_watchdog` instead of
+`/dev/watchdog0` — see [Watchdog Architecture](#watchdog-architecture) below.
 
 ### Buttons
 
@@ -313,10 +361,11 @@ Two USB ports with separate over-current detection GPIOs:
 
 ### Hub V3
 
+One physical USB port:
 - **USB Host 1 (usbh1):** Full-size USB-A port, EHCI host mode, 5V VBUS always-on
-- **USB OTG (usbotg):** ChipIdea dual-role controller (host + device), 5V VBUS via
-  GPIO3_22, over-current detection disabled. OTG features (SRP/HNP/ADP) disabled.
-- Battery daemon controls a single USB port power via GPIO 86 (`/tmp/io/usbPower`)
+- **USB OTG (usbotg):** ChipIdea dual-role controller — present on SoC but not
+  exposed as a physical port. VBUS via GPIO3_22, OTG features disabled.
+- Battery daemon controls USB port power via GPIO 86 (`/tmp/io/usbPower`)
 
 Kernel USB support includes: mass storage, CDC Ethernet (for 4G), CP210x, FTDI SIO,
 PL2303, and USB Option (4G modem serial).
@@ -333,22 +382,6 @@ PL2303, and USB Option (4G modem serial).
 
 The CAAM (Cryptographic Acceleration and Assurance Module) provides hardware-backed
 AES, SHA, and HMAC acceleration on the Hub V3. Hub V2 uses software implementations.
-
----
-
-## Thermal Monitoring
-
-### Hub V2
-
-AM335x internal temperature sensor via bandgap. No active thermal management
-in the hub software.
-
-### Hub V3
-
-- i.MX6 integrated thermal sensor: `CONFIG_IMX_THERMAL=y`
-- CPU thermal throttling: `CONFIG_CPU_THERMAL=y`
-- Writable thermal trip points: `CONFIG_THERMAL_WRITABLE_TRIPS=y`
-- IIO sensor exposure: `CONFIG_SENSORS_IIO_HWMON=y`
 
 ---
 
@@ -433,6 +466,99 @@ display hardware.
 
 ---
 
+## Watchdog Architecture
+
+The system uses a three-layer watchdog design: hardware watchdog, software
+watchdog management, and agent-level crash recovery.
+
+### Layer 1: Hardware Watchdog
+
+The hardware watchdog reboots the hub if software stops responding.
+
+| | Hub V2 | Hub V3 |
+|---|--------|--------|
+| Type | AM335x internal WDT | External GPIO watchdog chip |
+| Device | `/dev/watchdog0` | `/dev/imagic_watchdog` |
+| Max timeout | Configurable (minutes) | ~128 s (i.MX6 internal), external varies |
+| Configured timeout | 300 s (5 min) | 120 s (2 min) |
+| Poke interval | 150 s | 60 s |
+| Interface | Linux watchdog API (`WDIOC_*`) | Custom ioctl (`FEED_DOG`, `CLOSE_DOG`) |
+| Driver | `omap_wdt` (in-tree) | `imagic_watchdog` (out-of-tree) |
+
+### Layer 2: Software Watchdog Management (`irisinitd` / agent)
+
+**Dev images** — `irisinitd` owns the hardware watchdog:
+1. Opens the watchdog device and sets the timeout via ioctl
+2. Starts a GLib periodic timer to poke the watchdog
+3. `irislib.c` functions (`startWatchdog`, `pokeWatchdog`, `stopWatchdog`) guard
+   against conflicts — they check `lsof` before writing to avoid interfering if
+   the agent has the device open
+
+**Release images** — the Java agent owns the hardware watchdog:
+- `irisinitd` skips watchdog setup entirely (`!IRIS_isReleaseImage()` guard)
+- The agent opens the device and pokes it as part of its main loop
+- If the agent crashes, the watchdog stops being fed and the hub reboots
+
+### Layer 3: Agent Crash Recovery (`irisagentd`)
+
+`irisagentd` monitors the Java agent process and implements escalating recovery:
+
+| Condition | Action |
+|-----------|--------|
+| Agent exits | Restart immediately |
+| 3 rapid failures within 30 min (`SOFT_RESET_THRESHOLD`) | Signal a soft reset (creates `/data/agent/.soft_reset`) |
+| 6 rapid failures within 30 min (`FACTORY_DEF_THRESHOLD`) | Signal factory default (creates `/data/agent/.factory_default`) |
+| Agent runs > 30 min (`MIN_RUNNING_PERIOD`) | Failure counter resets |
+
+A "rapid failure" means the agent crashes again within 30 minutes of the last
+restart. The agent reads the soft reset / factory default marker files on
+startup and takes the appropriate recovery action.
+
+### Layer 4: Daemon Watcher (`dwatcher`)
+
+`dwatcher` runs on **release images only** and monitors critical system daemons
+every 5 seconds (after a 60-second startup delay):
+
+| Daemon | Monitored | Notes |
+|--------|-----------|-------|
+| `irisinitd` | Always | Core init daemon — restarted if missing |
+| `batteryd` | Release only | Battery/power management |
+| `iris4gd` | Release only | 4G modem (only if binary exists) |
+| `irisnfcd` | V3 only | NFC daemon (currently `#ifdef LATER` — disabled) |
+
+### Watchdog Flow Summary
+
+```
+Hardware Watchdog Timer
+    ↑ poke (periodic)
+    |
+Dev image: irisinitd ←──── GLib timer (150s V2, 60s V3)
+Release image: Java agent ←── agent main loop
+    ↑ restart on crash
+    |
+irisagentd (monitors agent process)
+    ↑ restart on crash
+    |
+dwatcher (monitors irisinitd, batteryd, iris4gd)
+```
+
+If the agent crashes, `irisagentd` restarts it. If `irisinitd` crashes,
+`dwatcher` restarts it. If all software stops, the hardware watchdog reboots
+the hub. This ensures the hub recovers from any single-process failure.
+
+### Key Source Files
+
+| File | Purpose |
+|------|---------|
+| `meta-iris/recipes-core/iris-lib/files/irislib.c` | `startWatchdog()`, `pokeWatchdog()`, `stopWatchdog()` |
+| `meta-iris/recipes-core/iris-lib/files/irisdefs.h` | `HW_WATCHDOG_DEV`, timeout constants |
+| `meta-iris/recipes-core/iris-utils/files/irisinitd.c` | Watchdog setup (lines 1668–1683) |
+| `meta-iris/recipes-core/iris-agent/files/irisagentd.c` | Agent crash recovery thresholds |
+| `meta-iris/recipes-core/iris-utils/files/dwatcher.c` | Daemon process monitor |
+| `meta-iris/recipes-kernel/linux/linux-fslc-lts/0002-*.patch` | `imagic_watchdog.c` driver |
+
+---
+
 ## Platform Comparison
 
 | Feature | Hub V2 | Hub V3 |
@@ -440,22 +566,21 @@ display hardware.
 | SoC | TI AM335x (Cortex-A8) | NXP i.MX6DL (Cortex-A9 x2) |
 | RAM | 512 MiB | 1 GiB |
 | Storage | eMMC (mmcblk0) | eMMC (mmcblk2, 8-bit) |
-| SD card | No | Yes (usdhc3) |
+| SD card | No | No (usdhc3 in DT, not supported) |
 | WiFi | No | BCM43362 (SDIO) |
 | 4G modem | No | Quectel EC25-A |
 | Audio | No | NAU8810 + LM4871 amplifiers |
 | NFC | No | ST 95HF (disabled) |
 | LEDs | 3 discrete (R/Y/G) | 12 RGB ring (MBI6023) |
 | Buzzer | PWM (ehrpwm2B) | GPIO (custom driver) |
-| Watchdog | Internal (AM335x) | External (GPIO-based) |
+| Watchdog | Internal AM335x WDT, 300s timeout | External GPIO chip, 120s timeout |
 | Z-Wave | ZM5304 | ZW050x |
-| Zigbee | EM3587 (UART) | Silicon Labs (SPI) |
+| Zigbee | EM3587 (UART) | EFR32MG1B (SPI) |
 | BLE | TI CC2541 | Broadcom (HCI UART) |
-| Ethernet | Yes | AR8035 RGMII |
-| USB | 2 host ports | 1 host + 1 OTG |
+| Ethernet | CPSW + SMSC PHY (MII) | FEC + AR8035 (RGMII) |
+| USB | 2 host ports | 1 host port (OTG on SoC, not exposed) |
 | Crypto HW | None | CAAM + MXS DCP |
 | RTC | Disabled (internal) | PCF8563 (external) + SNVS |
-| Thermal | Bandgap sensor | IMX thermal + CPU throttling |
 | PCIe | No | Yes (disabled, mPCIe slot) |
 | Serial naming | ttyS* | ttymxc* |
 | Kernel format | uImage | zImage |
@@ -626,106 +751,5 @@ See `RELEASE.md` for details.
 - Primary availability: `/tmp/primary_available`
 - Start/stop scripts: `backup_start` / `backup_stop` (SUID 4755)
 
----
-
-## System Daemons
-
-| Daemon | Purpose | Platforms |
-|--------|---------|-----------|
-| `irisinitd` | Main init: button/LED/SSH/provisioning handler | Both |
-| `batteryd` / `batterydv3` | Battery and power management | Both |
-| `dwatcher` | Daemon watchdog — restarts crashed daemons (release only) | Both |
-| `iris4gd` | 4G/LTE modem management | V3 |
-| `irisnfcd` | NFC daemon (currently disabled) | V3 |
-| `irisagentd` | Agent launcher (starts Java agent) | Both |
-
-`dwatcher` checks every 5 seconds (after 60s initial delay) and restarts:
-`irisinitd`, `batteryd`, `iris4gd` (if present), `irisnfcd` (V3, if enabled).
-
----
-
-## Radio Firmware Flash Tools
-
-All installed to `/usr/bin/` with SUID (4755) so the agent can invoke them:
-
-| Tool | Radio | Recipe |
-|------|-------|--------|
-| `zwave_flash` | Z-Wave firmware programming | `zwave-utils` |
-| `zwave_nvram` | Z-Wave NVRAM access | `zwave-utils` |
-| `zwave_default` | Z-Wave factory reset | `zwave-utils` |
-| `zigbee_flash` | Zigbee firmware programming | `zigbee-utils` |
-| `zigbee_default` | Zigbee factory reset | `zigbee-utils` |
-| `zigbee_mfg_tokens` | Zigbee manufacturing tokens | `zigbee-utils` |
-| `ble_prog` / `ble_ti_prog` | BLE firmware programming | `ble-utils` |
-
-Platform-specific binaries are selected at build time (e.g., `zwave_fsl_*` for
-V3 vs `zwave_ti_*` for V2).
-
----
-
-## System Utilities
-
-Installed to `/usr/bin/` or `/home/root/bin/`, many with SUID (4755):
-
-| Utility | Purpose |
-|---------|---------|
-| `fwinstall` | Firmware archive installer (A/B partitions) |
-| `update` | Signed firmware updater (downloads, validates, calls fwinstall) |
-| `validate_image` | Validates signed firmware headers |
-| `hub_restart` | Graceful reboot with LED animation |
-| `factory_default` | Factory reset |
-| `update_cert` / `update_key` | Certificate and key updates |
-| `ledctrl` / `ringctrl` | LED control (V2 discrete / V3 ring) |
-| `play_tones` | Buzzer/audio playback |
-| `emmcparm` | Micron eMMC flash parameter tool |
-| `wifi_scan` | WiFi network scanning (V3 only) |
-| `agent_start` / `agent_stop` | Agent lifecycle management |
-| `agent_install` / `agent_reinstall` | Agent installation and reset |
-| `agent_reset` | Agent data reset |
-
----
-
-## Key Files
-
-### Machine and Build Configuration
-
-| File | Purpose |
-|------|---------|
-| `meta-iris/conf/machine/imxdimagic.conf` | V3 machine configuration |
-| `meta-iris/conf/distro/poky-iris-ti.conf` | V2 distro config (kernel version, image types) |
-| `meta-iris/conf/distro/poky-iris-fsl.conf` | V3 distro config |
-| `build-ti/conf/local.conf` | V2 build config (MACHINE=beaglebone-yocto) |
-| `build-fsl/conf/local.conf` | V3 build config (MACHINE=imxdimagic) |
-
-### Hardware Init and Daemons
-
-| File | Purpose |
-|------|---------|
-| `meta-iris/recipes-core/iris-utils/files/irisinit-ti` | V2 hardware init (GPIO, partitions, mfg) |
-| `meta-iris/recipes-core/iris-utils/files/irisinit-imxdimagic` | V3 hardware init |
-| `meta-iris/recipes-core/iris-utils/files/irisinitd.c` | Main daemon (buttons, LEDs, SSH, debug dongle) |
-| `meta-iris/recipes-core/iris-utils/files/batteryd.c` | V2 battery/power management |
-| `meta-iris/recipes-core/iris-utils/files/batterydv3.c` | V3 battery/power management |
-| `meta-iris/recipes-core/iris-utils/files/dwatcher.c` | Daemon watchdog (release images) |
-| `meta-iris/recipes-core/iris-4g/files/iris4gd.c` | 4G/LTE modem daemon |
-| `meta-iris/recipes-core/iris-lib/files/irisdefs.h` | Shared hardware constants and paths |
-
-### Kernel Patches and Config
-
-| File | Purpose |
-|------|---------|
-| `meta-iris/recipes-kernel/linux/linux-6.x/*.cfg` | V2 kernel config fragments |
-| `meta-iris/recipes-kernel/linux/linux-fslc-lts/0001-*.patch` | V3 device tree support |
-| `meta-iris/recipes-kernel/linux/linux-fslc-lts/0002-*.patch` | V3 custom kernel drivers |
-| `meta-iris/recipes-kernel/linux/linux-fslc-lts/0003-*.patch` | V3 sound machine driver |
-| `meta-iris/recipes-kernel/linux/linux-fslc-lts/0005-*.patch` | NAU8810 PLL BCLK fix |
-
-### Firmware and Update Tools
-
-| File | Purpose |
-|------|---------|
-| `meta-iris/recipes-core/iris-utils/files/fwinstall.c` | Firmware installer (A/B partitions) |
-| `meta-iris/recipes-core/iris-utils/files/update.c` | Signed firmware updater |
-| `meta-iris/recipes-core/iris-utils/files/build_image.c` | Build-time firmware signing tool |
-| `meta-iris/recipes-core/iris-utils/files/validate_image.c` | Runtime image validation |
-| `meta-iris/recipes-core/iris-lib/files/irisversion.h` | Firmware version definition |
+For system daemons, utilities, radio firmware tools, and key source files,
+see [SYSTEM.md](SYSTEM.md).

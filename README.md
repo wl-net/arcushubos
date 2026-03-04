@@ -119,6 +119,7 @@ Detailed documentation is in the [docs/](docs/) directory:
 
 - [**RELEASE.md**](docs/RELEASE.md) — Release process: version bumping, building, signing, installing, testing
 - [**HARDWARE.md**](docs/HARDWARE.md) — Hardware reference for both platforms: SoC, radios, GPIOs, peripherals, power management
+- [**SYSTEM.md**](docs/SYSTEM.md) — System daemons, utilities, radio flash tools, key source files
 - [**FIRMWARE-FORMAT.md**](docs/FIRMWARE-FORMAT.md) — Firmware file format, signing/encryption pipeline, validation flow
 - [**UPGRADE.md**](docs/UPGRADE.md) — Yocto Scarthgap migration notes
 
