@@ -105,7 +105,7 @@ echo Done with gpio setup
 # Set up buzzer
 echo Setup buzzer pwm
 cd /sys/class/pwm/pwmchip0
-echo 1 > export
+echo 1 > export 2>/dev/null
 chmod 0666 -R pwm1
 chmod o+x pwm1
 cd pwm1
@@ -128,7 +128,7 @@ chmod 0666 /tmp/ledMode
 mkdir -p /tmp/media
 
 # Check /mfg partition
-umount /mfg
+umount /mfg 2>/dev/null
 e2fsck -p /dev/mmcblk0p7
 if [ $? -le 2 ]; then
     echo "Manufacturing partition is clean"
@@ -173,7 +173,7 @@ echo ${flashSize} > /tmp/mfg/config/hwFlashSize
 echo "Flash size: " ${flashSize}
 
 # Check /data partition
-umount /data
+umount /data 2>/dev/null
 e2fsck -p /dev/mmcblk0p8
 if [ $? -le 2 ]; then
     echo "Data partition is clean"
