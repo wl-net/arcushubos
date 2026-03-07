@@ -3,7 +3,8 @@
 # We get two "add" events for hostap cards due to wifi0
 echo "$INTERFACE" | grep -q wifi && exit 0
 
-# Skip wlan interfaces — managed by ifplugd/wifi_start, not udev
+# Skip eth0 and wlan — managed by ifplugd, not udev
+echo "$INTERFACE" | grep -q eth0 && exit 0
 echo "$INTERFACE" | grep -q wlan && exit 0
 
 # udevd does clearenv(). Export shell PATH to children.
