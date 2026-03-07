@@ -46,6 +46,10 @@
 /* Check ifplugd process every so often as well */
 #define IFPLUGD_PERIODIC 15
 
+/* Check gateway reachability every 5 minutes */
+#define GW_CHECK_PERIODIC 300
+#define GW_CHECK_FAIL_MAX 3
+
 /* Delay a bit before starting wifi config thread to avoid notification issues*/
 #define WIFI_CFG_INIT_DELAY       10
 
@@ -748,6 +752,86 @@ static gboolean ifplugdWatchdog(gpointer data)
         }
         pclose(f);
     }
+    return TRUE;
+}
+
+/* Signal udhcpc to renew on a given interface, or run a one-shot request */
+static void gwRenewInterface(const char *iface)
+{
+    FILE *f;
+    char pidpath[64];
+    char cmd[128];
+
+    snprintf(pidpath, sizeof(pidpath), "/var/run/udhcpc.%s.pid", iface);
+    f = fopen(pidpath, "r");
+    if (f) {
+        int pid = 0;
+        if (fscanf(f, "%d", &pid) == 1 && pid > 0 && kill(pid, 0) == 0) {
+            kill(pid, SIGUSR1);
+            syslog(LOG_INFO, "Sent SIGUSR1 to udhcpc (pid %d) for %s",
+                   pid, iface);
+            fclose(f);
+            return;
+        }
+        fclose(f);
+    }
+
+    /* udhcpc not running — start a one-shot DHCP request */
+    syslog(LOG_ERR, "udhcpc not running for %s, starting one-shot DHCP", iface);
+    snprintf(cmd, sizeof(cmd), "udhcpc -i %s -n -q 2>/dev/null", iface);
+    system(cmd);
+}
+
+/* Check if gateway is reachable — force DHCP renewal if not */
+static int gw_check_failures = 0;
+static gboolean gwCheck(gpointer data)
+{
+    FILE *f;
+    char gateway[64] = {0};
+    char cmd[256];
+
+    /* Read the current gateway */
+    f = fopen("/tmp/pri_gw.conf", "r");
+    if (f == NULL) {
+        return TRUE;
+    }
+    if (fscanf(f, "%63s", gateway) != 1 || gateway[0] == '\0') {
+        fclose(f);
+        return TRUE;
+    }
+    fclose(f);
+
+    /* Ping the gateway without binding to an interface — tests actual
+       reachability regardless of which interface is active */
+    snprintf(cmd, sizeof(cmd),
+             "ping -c 3 -W 2 %s > /dev/null 2>&1", gateway);
+    if (system(cmd) == 0) {
+        if (gw_check_failures > 0) {
+            syslog(LOG_INFO, "Gateway %s reachable again after %d failures",
+                   gateway, gw_check_failures);
+        }
+        gw_check_failures = 0;
+        return TRUE;
+    }
+
+    gw_check_failures++;
+    syslog(LOG_WARNING, "Gateway %s unreachable (failure %d/%d)",
+           gateway, gw_check_failures, GW_CHECK_FAIL_MAX);
+
+    if (gw_check_failures < GW_CHECK_FAIL_MAX) {
+        return TRUE;
+    }
+
+    /* Too many consecutive failures — force DHCP renewal on whatever
+       udhcpc instances are running */
+    gw_check_failures = 0;
+    syslog(LOG_ERR, "Forcing DHCP renewal due to gateway unreachable");
+
+    gwRenewInterface("eth0");
+    if (access("/var/run/udhcpc.wlan0.pid", F_OK) == 0) {
+        gwRenewInterface("wlan0");
+    }
+
     return TRUE;
 }
 
@@ -1664,6 +1748,9 @@ int main(int argc, char** argv)
 
     /* Make sure ifplugd is always running */
     g_timeout_add_seconds(IFPLUGD_PERIODIC, ifplugdWatchdog, NULL);
+
+    /* Periodically check gateway reachability */
+    g_timeout_add_seconds(GW_CHECK_PERIODIC, gwCheck, NULL);
 
     /* For non-release image, need to poke the watchdog - done by the agent
        in release image */
