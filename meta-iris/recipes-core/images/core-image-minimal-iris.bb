@@ -38,6 +38,8 @@ CORE_IMAGE_EXTRA_INSTALL += " \
     iris-4g \
     ${OPENJDK_PACKAGE} \
     strace \
+    libxcrypt-compat \
+    libstdc++ \
     "
 
 
