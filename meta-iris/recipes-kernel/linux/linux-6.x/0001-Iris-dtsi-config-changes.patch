@@ -6,10 +6,10 @@ Upstream-Status: Inappropriate [Iris Hub V2 specific]
 
 ---
  .../boot/dts/ti/omap/am335x-bone-common.dtsi  | 23 +++---
- .../dts/ti/omap/am335x-boneblack-common.dtsi  | 79 +++++++++++++++++++
+ .../dts/ti/omap/am335x-boneblack-common.dtsi  | 86 +++++++++++++++++++
  .../dts/ti/omap/am335x-boneblack-hdmi.dtsi    |  5 +-
  arch/arm/boot/dts/ti/omap/am33xx-l4.dtsi      |  1 +
- 4 files changed, 91 insertions(+), 17 deletions(-)
+ 4 files changed, 98 insertions(+), 17 deletions(-)
 
 diff --git a/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi b/arch/arm/boot/dts/ti/omap/am335x-bone-common.dtsi
 index 96451c8a815c..7909deab3993 100644
@@ -74,7 +74,7 @@ diff --git a/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi b/arch/arm/b
 index a7a8c61ef9b2..ba82eb476356 100644
 --- a/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi
 +++ b/arch/arm/boot/dts/ti/omap/am335x-boneblack-common.dtsi
-@@ -22,7 +22,88 @@ &mmc2 {
+@@ -22,7 +22,95 @@ &mmc2 {
  	non-removable;
  };
  
@@ -148,6 +148,13 @@ index a7a8c61ef9b2..ba82eb476356 100644
 +/* Hub V2 has no PRUSS — disable to prevent ti-sysc probe crash */
 +&pruss_tm {
 +	status = "disabled";
++};
++
++/* Disable SGX GPU — not used, avoids probe timeout at boot */
++&ocp {
++	target-module@56000000 {
++		status = "disabled";
++	};
 +};
 +
  / {
