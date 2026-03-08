@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+OPENJDK_PACKAGE ?= "openjdk-8-armhf"
+
 CORE_IMAGE_EXTRA_INSTALL += " \
     dropbear \
     iris-utils \
@@ -34,7 +36,7 @@ CORE_IMAGE_EXTRA_INSTALL += " \
     tzdata-americas \
     cryptodev-module \
     iris-4g \
-    openjdk-8-armhf \
+    ${OPENJDK_PACKAGE} \
     openssl-dev \
     apr \
     apr-dev \
