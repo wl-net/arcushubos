@@ -19,7 +19,6 @@
 #
 
 hubv2:
-	rm -rf build-ti/cache
 	(export BDIR=$(PWD)/build-ti; cd poky; . ./oe-init-build-env; \
 	bitbake core-image-minimal-iris || exit 1; \
 	tools/create_update_file core-image-minimal-iris; \

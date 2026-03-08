@@ -52,12 +52,21 @@ shift 2>/dev/null || true
 
 run_docker() {
     mkdir -p "$SCRIPT_DIR/output"
+
+    # Podman rootless needs --userns=keep-id so the host UID maps 1:1 into the
+    # container, allowing the bind-mounted repo to be writable.
+    local userns_flag=""
+    if [[ "$CONTAINER_RT" == "podman" ]]; then
+        userns_flag="--userns=keep-id"
+    fi
+
     $CONTAINER_RT run --rm -it \
-        -v "$SCRIPT_DIR":/home/builder/arcushubos \
-        -v "$DOWNLOADS_VOL":/home/builder/arcushubos/build-ti/downloads \
-        -v "$DOWNLOADS_VOL":/home/builder/arcushubos/build-fsl/downloads \
-        -v "$SSTATE_VOL":/build/sstate-cache \
-        -v "$SCRIPT_DIR/output":/tftpboot \
+        $userns_flag \
+        -v "$SCRIPT_DIR":/home/builder/arcushubos:Z \
+        -v "$DOWNLOADS_VOL":/home/builder/arcushubos/build-ti/downloads:Z \
+        -v "$DOWNLOADS_VOL":/home/builder/arcushubos/build-fsl/downloads:Z \
+        -v "$SSTATE_VOL":/build/sstate-cache:Z \
+        -v "$SCRIPT_DIR/output":/tftpboot:Z \
         -e TERM="$TERM" \
         "$IMAGE_NAME" \
         "$@"
