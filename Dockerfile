@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-pexpect python3-subunit \
     xz-utils debianutils iputils-ping \
     libsdl1.2-dev xterm \
-    lz4 zstd liblz4-tool \
+    lz4 zstd liblz4-tool patchelf \
     srecord \
     openjdk-11-jdk-headless \
     file locales sudo tmux \
