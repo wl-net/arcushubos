@@ -60,8 +60,19 @@ CFLAGS += "-Wall -Werror -Wno-unused-result"
 TARGET_MACHINE := "${@'${MACHINE}'.replace('-', '_')}"
 CFLAGS += "-D${TARGET_MACHINE}"
 
+# Allow the platform gateway URI to be overridden in local.conf
+# e.g. IRIS_GATEWAY_URI = "wss://bh.arcussmarthome.com/hub/1.0"
+IRIS_GATEWAY_URI ?= ""
+
+do_compile[vardeps] += "IRIS_GATEWAY_URI"
 do_compile () {
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/irisagentd.c -o irisagentd -liris
+        if [ -n "${IRIS_GATEWAY_URI}" ]; then
+                printf '#define IRIS_GATEWAY_URI "%s"\n' '${IRIS_GATEWAY_URI}' > ${WORKDIR}/gateway_uri.h
+                GATEWAY_FLAG="-include ${WORKDIR}/gateway_uri.h"
+        else
+                GATEWAY_FLAG=""
+        fi
+        ${CC} ${CFLAGS} ${GATEWAY_FLAG} ${LDFLAGS} ${WORKDIR}/irisagentd.c -o irisagentd -liris
 }
 
 do_install () {
@@ -77,12 +88,7 @@ do_install () {
 
         # Install hub agent tar file
         install -d ${D}/home/agent
-        # If a server exists with agent binaries, remove local file
-        # and uncomment this next line (with appropriate login details
-        # earlier in file
         install -m 0444 ${DL_DIR}/${AGENT_FILE}?dl=1 ${D}/home/agent/iris-agent-hub
-        # For local binary, comment above line and uncomment below
-        #install -m 0444 ${WORKDIR}/iris-agent-hub ${D}/home/agent/iris-agent-hub
 
         # Replace /home/root/.ssh/authorized_keys with a link to /var/run/..
         install -d ${D}/home/root/.ssh

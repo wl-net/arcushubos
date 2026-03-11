@@ -45,7 +45,9 @@
 
 /* Agent debug configuration related defines */
 #define HOSTS_FILE         "/var/run/hosts"
-#define DEFAULT_HOSTNAME   "bh.irisbylowes.com"
+#ifndef DEFAULT_HOSTNAME
+#define DEFAULT_HOSTNAME   "bh.arcussmarthome.com"
+#endif
 #define HUB_OS_BIN         "hubOS.bin"
 #define HUB_AGENT_BIN      "hubAgent.bin"
 #define HUB_AGENT_CKSUM    "/data/agent/lastAgentCksum.txt"
@@ -429,6 +431,11 @@ static void startHubAgent(void)
         unsetenv("JAVA_DBG_OPTS");
         clearHostEntries();
     }
+
+#ifdef IRIS_GATEWAY_URI
+    setenv("IRIS_GATEWAY_URI", IRIS_GATEWAY_URI, 1);
+    syslog(LOG_INFO, "Platform gateway: %s", IRIS_GATEWAY_URI);
+#endif
 
     syslog(LOG_INFO, "Starting hub agent...");
     child = fork();

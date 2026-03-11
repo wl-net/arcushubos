@@ -28,6 +28,7 @@ SRC_URI += " \
 	file://serial.cfg \
 	file://debug.cfg \
 	file://gpio.cfg \
+	file://nosound.cfg \
 	file://0001-Iris-dtsi-config-changes.patch \
 	file://0002-Disable-Ethernet-MDIX.patch \
 	"
