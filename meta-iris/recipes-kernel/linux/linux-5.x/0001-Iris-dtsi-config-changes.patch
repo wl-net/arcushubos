@@ -2,6 +2,8 @@ From 818be71ce848c313ac0a3f68bd0ab779aa1f3604 Mon Sep 17 00:00:00 2001
 Date: Wed, 22 Nov 2017 15:45:17 -0500
 Subject: [PATCH] Iris dtsi config changes
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/am335x-bone-common.dtsi      |  21 ++--
  arch/arm/boot/dts/am335x-boneblack-common.dtsi | 146 +++++++------------------

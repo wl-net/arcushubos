@@ -2,6 +2,8 @@ From b7b48e25633074faa2396ed6b7694848d6c60d84 Mon Sep 17 00:00:00 2001
 Date: Mon, 11 Dec 2017 12:12:28 -0500
 Subject: [PATCH] IRIS modifications and cleanup
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/imx6q-mq.dts    |  26 --
  arch/arm/boot/dts/imx6qdl-mq.dtsi | 703 ++++++--------------------------------

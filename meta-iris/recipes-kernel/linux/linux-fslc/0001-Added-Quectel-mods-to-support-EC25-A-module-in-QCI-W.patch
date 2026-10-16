@@ -2,6 +2,8 @@ From bb2879207dbb384b79ad86d743f97b8390d29651 Mon Sep 17 00:00:00 2001
 Date: Tue, 28 Nov 2017 12:33:04 -0500
 Subject: [PATCH] Added Quectel mods to support EC25-A module in QCI WWAN
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/net/usb/qmi_wwan.c    | 42 +++++++++++++++++++++++++++++++++++++++++-
  drivers/usb/serial/qcserial.c |  2 +-

@@ -2,6 +2,8 @@ From 9a20970346838d60ed4e7260a33e295e4ce129b9 Mon Sep 17 00:00:00 2001
 Date: Sat, 24 Feb 2018 08:56:01 -0500
 Subject: [PATCH] imxdimagic platform support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/cpu/armv7/cpu.c                           |    4 +
  arch/arm/cpu/armv7/mx6/Kconfig                     |    7 +

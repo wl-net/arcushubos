@@ -2,6 +2,8 @@ From e2091539a8b0df0acf6a3093ba30a576563d2487 Mon Sep 17 00:00:00 2001
 Date: Wed, 13 Jun 2018 15:00:45 -0400
 Subject: [PATCH] Lockdown for production
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  include/configs/mx6imagic.h        | 6 +++++-
  include/configs/mx6imagic_common.h | 3 ++-

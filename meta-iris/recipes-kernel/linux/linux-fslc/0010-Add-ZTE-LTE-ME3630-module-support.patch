@@ -2,6 +2,8 @@ From 09183d4e01fd700088e76f8456098feb80c42e37 Mon Sep 17 00:00:00 2001
 Date: Fri, 26 Jan 2018 17:00:04 -0500
 Subject: [PATCH] Add ZTE LTE ME3630 module support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/usb/serial/option.c | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)

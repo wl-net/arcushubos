@@ -2,6 +2,8 @@ From 4906b14b8f44b29d378696cf6acdcd521fbbb451 Mon Sep 17 00:00:00 2001
 Date: Tue, 20 Mar 2018 18:27:26 -0400
 Subject: [PATCH] IMX-D-IMAGIC board support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/Makefile            |    2 +
  arch/arm/boot/dts/imx6dl-imagic.dts   |   29 +

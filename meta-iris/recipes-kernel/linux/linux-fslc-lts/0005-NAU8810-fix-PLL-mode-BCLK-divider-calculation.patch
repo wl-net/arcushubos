@@ -15,6 +15,8 @@ Fix by increasing the BCLK divider by 4x (2 steps in the power-of-2
 divider selection) when PLL mode is active.
 
 Signed-off-by: Andrew Sorensen <andrew@andrewsorensen.net>
+
+Upstream-Status: Inappropriate [Arcus hardware specific]
 ---
  sound/soc/codecs/nau8810.c | 3 +++
  1 file changed, 3 insertions(+)

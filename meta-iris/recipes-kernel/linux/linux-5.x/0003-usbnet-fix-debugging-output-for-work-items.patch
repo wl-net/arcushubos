@@ -9,6 +9,8 @@ a work item is not an error provided the corresponding flag is set
 before an attempt to schedule the work is made.
 
 Signed-off-by: Oliver Neukum <oneukum@xxxxxxxx>
+
+Upstream-Status: Inappropriate [Arcus hardware specific]
 ---
  drivers/net/usb/usbnet.c | 34 ++++++++++++++++++++++++----------
  1 file changed, 24 insertions(+), 10 deletions(-)

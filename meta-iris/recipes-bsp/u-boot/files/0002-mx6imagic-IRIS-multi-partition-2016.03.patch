@@ -2,6 +2,8 @@ From 7715aae26f65f5c681a56de30dae9ec25a7ef3f9 Mon Sep 17 00:00:00 2001
 Date: Sat, 24 Feb 2018 10:10:48 -0500
 Subject: [PATCH] mx6imagic IRIS multi partition 2016.03
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  board/freescale/mx6imagic/mx6imagic.c | 99 +++++++++++++++++++++++++++++++++++
  include/configs/mx6imagic_common.h    | 11 ++--

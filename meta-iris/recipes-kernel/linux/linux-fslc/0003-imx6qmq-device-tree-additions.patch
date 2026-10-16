@@ -2,6 +2,8 @@ From 9d851a3c7d9a9176f7be593db87e26bb3e62744a Mon Sep 17 00:00:00 2001
 Date: Tue, 28 Nov 2017 17:11:39 -0500
 Subject: [PATCH] imx6qmq device tree additions
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/Makefile         |    3 +
  arch/arm/boot/dts/imx6q-mq-ldo.dts |   29 +

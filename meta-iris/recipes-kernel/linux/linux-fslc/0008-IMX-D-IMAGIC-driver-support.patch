@@ -2,6 +2,8 @@ From 2828c893d093b454e38e02aae7bd5ad14de1bed1 Mon Sep 17 00:00:00 2001
 Date: Fri, 23 Feb 2018 15:46:33 -0500
 Subject: [PATCH] IMX-D-IMAGIC driver support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/ata/ahci_imx.c                    |   3 +-
  drivers/misc/Kconfig                      |  34 ++++

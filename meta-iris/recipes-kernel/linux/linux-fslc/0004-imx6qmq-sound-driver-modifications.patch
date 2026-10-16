@@ -2,6 +2,8 @@ From 8bcc90fd6d2bc47a49d37d3bda45866f6bde2669 Mon Sep 17 00:00:00 2001
 Date: Tue, 28 Nov 2017 16:47:31 -0500
 Subject: [PATCH] imx6qmq sound driver modifications
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  sound/soc/codecs/wm8960.c  |  52 ++--
  sound/soc/fsl/Kconfig      |  13 +

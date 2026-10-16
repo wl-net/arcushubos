@@ -1,3 +1,5 @@
+
+Upstream-Status: Inappropriate [Arcus hardware specific]
 diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
 index 9c244226b..57375212a 100644
 --- a/drivers/net/ethernet/freescale/fec_main.c

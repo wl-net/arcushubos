@@ -1,4 +1,6 @@
 diff -Naur u-boot-orig/arch/arm/lib/spl.c u-boot/arch/arm/lib/spl.c
+
+Upstream-Status: Inappropriate [Arcus hardware specific]
 --- u-boot-orig/arch/arm/lib/spl.c	2016-05-06 09:00:47.028945607 -0400
 +++ u-boot/arch/arm/lib/spl.c	2016-05-06 09:03:50.000940752 -0400
 @@ -32,6 +32,12 @@

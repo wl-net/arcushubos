@@ -2,6 +2,8 @@ From 69bbe00e5f902ffc8696abd910da8e57863ff803 Mon Sep 17 00:00:00 2001
 Date: Sat, 19 May 2018 07:11:36 -0400
 Subject: [PATCH] Fix to Samsung K4B4G1646E-BYMA DDR3-1866
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  board/freescale/mx6imagic/mx6dlimagic.cfg | 13 +++++++------
  1 file changed, 7 insertions(+), 6 deletions(-)

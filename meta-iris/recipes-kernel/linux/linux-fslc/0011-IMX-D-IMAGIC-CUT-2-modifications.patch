@@ -2,6 +2,8 @@ From f36483514969ac0e04afcaa63d67e58ed5b1d548 Mon Sep 17 00:00:00 2001
 Date: Tue, 10 Apr 2018 09:23:09 -0400
 Subject: [PATCH] IMX D IMAGIC CUT-2 modifications
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/imx6qdl-imagic.dtsi | 77 +++++++++++++++++++++++++++--------
  drivers/misc/mbi6023.c                |  6 ++-

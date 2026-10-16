@@ -9,6 +9,8 @@ and NXP BSP-only node removal. Adds MDIO sub-node with
 qca,clk-out-frequency for AT8035 PHY clock output, uses rgmii-id
 phy-mode for PHY-managed RGMII delays, and sets enet_ref clock to 125MHz.
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 diff --git a/arch/arm/boot/dts/nxp/imx/Makefile b/arch/arm/boot/dts/nxp/imx/Makefile
 index 3629e343d..b46a88e11 100644
 --- a/arch/arm/boot/dts/nxp/imx/Makefile

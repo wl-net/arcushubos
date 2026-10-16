@@ -2,6 +2,8 @@ From c533e3b914edfd880b890b7954525e4197557904 Mon Sep 17 00:00:00 2001
 Date: Fri, 8 Jun 2018 15:30:20 -0400
 Subject: [PATCH] Set LED ring to purple at boot
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/imx6qdl-imagic.dtsi |  5 ++---
  drivers/misc/mbi6023.c                | 35 +++++++++++++++++++++++++++++++++++

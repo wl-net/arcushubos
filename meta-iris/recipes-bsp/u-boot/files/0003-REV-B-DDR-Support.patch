@@ -2,6 +2,8 @@ From 1f4efa670b8ca58922b19ef9d42c0265286b5a7f Mon Sep 17 00:00:00 2001
 Date: Thu, 10 May 2018 09:06:19 -0400
 Subject: [PATCH] REV B DDR Support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  board/freescale/mx6imagic/mx6imagic.c              |   2 +-
  .../mx6imagic/mx6q_2x_MT41K256M16TW-107.cfg        | 136 +++++++++++++++++++++

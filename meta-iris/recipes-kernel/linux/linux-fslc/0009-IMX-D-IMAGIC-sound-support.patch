@@ -2,6 +2,8 @@ From ab401c256e68f17d680f975f5e19b867c5450fad Mon Sep 17 00:00:00 2001
 Date: Wed, 14 Feb 2018 17:02:35 -0500
 Subject: [PATCH] IMX-D-IMAGIC sound support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  sound/soc/codecs/nau8810.c  |   3 +-
  sound/soc/fsl/Kconfig       |  12 ++

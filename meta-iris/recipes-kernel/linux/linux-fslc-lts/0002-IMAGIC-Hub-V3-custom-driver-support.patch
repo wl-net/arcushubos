@@ -12,6 +12,8 @@ Add four custom misc drivers for Hub V3 hardware:
 Add NFC (ST 95HF) GPIO ioctls and compatible string to spidev.
 Add Kconfig entries and Makefile rules for all four drivers.
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index 1d57b933d..1bfa1e6ad 100644
 --- a/drivers/misc/Kconfig

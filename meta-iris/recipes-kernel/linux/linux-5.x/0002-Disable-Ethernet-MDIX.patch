@@ -2,6 +2,8 @@ From 3ef0975662cb437ac9b9887e2bcd49acf88b3e66 Mon Sep 17 00:00:00 2001
 Date: Sat, 19 Dec 2015 06:00:37 -0500
 Subject: [PATCH] Disable Ethernet MDIX
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/net/ethernet/ti/davinci_mdio.c |  5 +++++
  drivers/net/phy/smsc.c                 | 17 +++++++++++++++++

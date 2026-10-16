@@ -2,6 +2,8 @@ From 272fe7e70e1b3a58d94b1d48b3499045bfe53151 Mon Sep 17 00:00:00 2001
 Date: Tue, 28 Nov 2017 15:36:43 -0500
 Subject: [PATCH] imx6qmq board support
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/mach-imx/Kconfig         |  11 ++
  arch/arm/mach-imx/Makefile        |   2 +

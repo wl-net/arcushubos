@@ -1,3 +1,5 @@
+
+Upstream-Status: Inappropriate [Arcus hardware specific]
 diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
 index 9847ae6c89..453a2aef6b 100644
 --- a/scripts/kconfig/confdata.c

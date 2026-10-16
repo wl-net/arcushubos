@@ -11,6 +11,8 @@ Port imx-nau8810 ASoC machine driver to 6.6 API:
 - Use remove_new callback signature
 - Use dev_err_probe for card registration
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 diff --git a/sound/soc/fsl/Kconfig b/sound/soc/fsl/Kconfig
 index 725c530a3..b1fb6ceca 100644
 --- a/sound/soc/fsl/Kconfig

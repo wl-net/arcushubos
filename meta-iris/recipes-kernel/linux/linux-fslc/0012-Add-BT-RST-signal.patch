@@ -2,6 +2,8 @@ From 7b48508d40da1f04400fc7885548e2d77694c181 Mon Sep 17 00:00:00 2001
 Date: Mon, 30 Apr 2018 13:49:53 -0400
 Subject: [PATCH] Add BT RST signal
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  arch/arm/boot/dts/imx6qdl-imagic.dtsi | 1 +
  1 file changed, 1 insertion(+)

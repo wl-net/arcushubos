@@ -2,6 +2,8 @@ From 3af0076dd6b592dee2163b68f859fa3acdf486cb Mon Sep 17 00:00:00 2001
 Date: Thu, 17 Oct 2019 11:40:34 -0400
 Subject: [PATCH] Go back to old mmc numbering scheme
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/mmc/core/block.c | 19 ++++++++++++++++++-
  1 file changed, 18 insertions(+), 1 deletion(-)

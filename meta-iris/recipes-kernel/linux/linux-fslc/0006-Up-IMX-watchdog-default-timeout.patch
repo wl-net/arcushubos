@@ -2,6 +2,8 @@ From b6e9d6268a87bc912f56d8aca164129f28d0a9eb Mon Sep 17 00:00:00 2001
 Date: Thu, 20 Sep 2018 13:09:24 -0400
 Subject: [PATCH] Up IMX watchdog default timeout
 
+Upstream-Status: Inappropriate [Arcus hardware specific]
+
 ---
  drivers/watchdog/imx2_wdt.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
