@@ -23,13 +23,12 @@ require u-boot.inc
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=a2c678cfd4a4d97135585cad908541c6"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE = "beaglebone-yocto"
 
-S = "${WORKDIR}/git"
 
 PV = "2016.03"
 PR = "r0"

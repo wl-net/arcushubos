@@ -5,13 +5,10 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/linux-6.x:"
 KERNEL_EXTRA_FEATURES = ""
 KERNEL_FEATURES:append = ""
 
-# Kernel branch/machine config (replaces masked meta-yocto-bsp bbappend)
-KBRANCH:beaglebone-yocto = "v6.6/standard/beaglebone"
+# Machine config. KBRANCH/SRCREV intentionally not pinned here: oe-core's
+# linux-yocto_6.18.bb supplies a self-consistent KBRANCH + SRCREV + LINUX_VERSION,
+# and meta-yocto's own 6.18 bbappend supplies KMACHINE for beaglebone.
 KMACHINE:beaglebone-yocto ?= "beaglebone"
-SRCREV_machine:beaglebone-yocto = "9bd5232ea463156cf378d6b99b3460b8826b7dba"
-LINUX_VERSION:beaglebone-yocto = "6.6.127"
-LINUX_VERSION = "6.6.127"
-PV = "${LINUX_VERSION}+git${SRCPV}"
 COMPATIBLE_MACHINE:beaglebone-yocto = "beaglebone-yocto"
 
 # Create a uImage output file — old U-Boot on Hub V2 requires this

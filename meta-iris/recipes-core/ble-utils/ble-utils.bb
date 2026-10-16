@@ -25,6 +25,9 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 DEPENDS = "iris-lib tinycbor bluez-dbus glib-2.0"
 RDEPENDS:${PN} = "iris-lib tinycbor bluez-dbus"
 PR = "r0"
+S = "${UNPACKDIR}"
+
+inherit pkgconfig
 
 SRC_URI = "file://ble_prog.c \
            file://ble_ti_prog \
@@ -48,8 +51,8 @@ INSANE_SKIP:${PN} = "already-stripped"
 
 do_compile () {
     if [ "${MACHINE}" = "imxdimagic" ]; then
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/base64.c ${WORKDIR}/ble_prog.c ${WORKDIR}/ble_mcuboot_prog.c -o ble_prog -liris -ltinycbor
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/wifi_prov.c \
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/base64.c ${UNPACKDIR}/ble_prog.c ${UNPACKDIR}/ble_mcuboot_prog.c -o ble_prog -liris -ltinycbor
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/wifi_prov.c \
               -o wifi_prov -ldbus-1 -lbluez-dbus -liris -lpthread \
               `/usr/bin/pkg-config --cflags --libs glib-2.0`
     fi
@@ -61,6 +64,6 @@ do_install () {
 	   install -m 4755 ble_prog ${D}${bindir}
 	   install -m 4755 wifi_prov ${D}${bindir}
 	else
-	   install -m 4755 ${WORKDIR}/ble_ti_prog ${D}${bindir}/ble_prog
+	   install -m 4755 ${UNPACKDIR}/ble_ti_prog ${D}${bindir}/ble_prog
 	fi
 }

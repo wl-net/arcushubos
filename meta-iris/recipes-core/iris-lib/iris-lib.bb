@@ -23,6 +23,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 PR = "r0"
+S = "${UNPACKDIR}"
 DEPENDS:append:class-target = " iris-lib-native"
 BBCLASSEXTEND += "native"
 
@@ -47,9 +48,9 @@ TARGET_MACHINE := "${@'${MACHINE}'.replace('-', '_')}"
 CFLAGS += "-D${TARGET_MACHINE}"
 
 do_compile () {
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/irislib.c -o irislib.o -lpthread
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/aes.c -o aes.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/at_parser.c -o at_parser.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/irislib.c -o irislib.o -lpthread
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/aes.c -o aes.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/at_parser.c -o at_parser.o
         ${CC} ${LDFLAGS} -shared -fPIC -Wl,-soname,libiris.so.1 -o libiris.so.1.0 irislib.o aes.o at_parser.o -lpthread
 }
 
@@ -59,11 +60,11 @@ do_compile:class-native() {
 
 do_install () {
 	install -d ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irisversion.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irisdefs.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irislib.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/aes.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/at_parser.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irisversion.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irisdefs.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irislib.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/aes.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/at_parser.h ${D}${includedir}
 
 	install -d ${D}${libdir}
 	install -m 0755 libiris.so.1.0 ${D}${libdir}
@@ -73,7 +74,7 @@ do_install () {
 
 do_install:class-native() {
 	install -d ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irisversion.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irisdefs.h ${D}${includedir}
-	install -m 0444 ${WORKDIR}/irislib.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irisversion.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irisdefs.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/irislib.h ${D}${includedir}
 }

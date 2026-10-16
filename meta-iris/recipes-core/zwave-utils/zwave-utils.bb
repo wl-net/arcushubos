@@ -25,6 +25,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 DEPENDS = "iris-lib"
 RDEPENDS:${PN} = "iris-lib"
 PR = "r0"
+S = "${UNPACKDIR}"
 
 SRC_URI = "file://zwave_fsl_nvram \
 	   file://zwave_ti_nvram \
@@ -40,12 +41,12 @@ INSANE_SKIP:${PN} = "already-stripped"
 do_install () {
 	install -d ${D}${bindir}
 	if [ "${MACHINE}" = "imxdimagic" ]; then
-	    install -m 4755 ${WORKDIR}/zwave_fsl_nvram ${D}${bindir}/zwave_nvram
-	    install -m 4755 ${WORKDIR}/zwave_fsl_flash ${D}${bindir}/zwave_flash
-	    install -m 4755 ${WORKDIR}/zwave_fsl_default ${D}${bindir}/zwave_default
+	    install -m 4755 ${UNPACKDIR}/zwave_fsl_nvram ${D}${bindir}/zwave_nvram
+	    install -m 4755 ${UNPACKDIR}/zwave_fsl_flash ${D}${bindir}/zwave_flash
+	    install -m 4755 ${UNPACKDIR}/zwave_fsl_default ${D}${bindir}/zwave_default
 	else
-	    install -m 4755 ${WORKDIR}/zwave_ti_nvram ${D}${bindir}/zwave_nvram
-	    install -m 4755 ${WORKDIR}/zwave_ti_flash ${D}${bindir}/zwave_flash
-	    install -m 4755 ${WORKDIR}/zwave_ti_default ${D}${bindir}/zwave_default
+	    install -m 4755 ${UNPACKDIR}/zwave_ti_nvram ${D}${bindir}/zwave_nvram
+	    install -m 4755 ${UNPACKDIR}/zwave_ti_flash ${D}${bindir}/zwave_flash
+	    install -m 4755 ${UNPACKDIR}/zwave_ti_default ${D}${bindir}/zwave_default
 	fi
 }

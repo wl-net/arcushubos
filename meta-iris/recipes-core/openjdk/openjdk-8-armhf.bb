@@ -20,15 +20,15 @@
 
 SUMMARY = "Adoptium Temurin pre-built armhf OpenJDK 8 binaries"
 PR = "r1"
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 DEPENDS = "zip-native unzip-native"
 
 libdir_jvm ?= "${libdir}/jvm"
 JDK_HOME = "${libdir_jvm}/java-8-openjdk"
-BIN_DIR = "${WORKDIR}/jdk"
+BIN_DIR = "${UNPACKDIR}/jdk"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
 SRC_URI = " \
@@ -48,7 +48,7 @@ SKIP_FILEDEPS:${PN} = "1"
 
 # Rename the date-stamped extracted directory to a deterministic name
 do_unpack_fixup () {
-    cd "${WORKDIR}"
+    cd "${UNPACKDIR}"
     mv jdk8u482-b08-aarch32-* jdk || true
 }
 
@@ -354,7 +354,7 @@ do_install() {
 	      ${D}${JDK_HOME}/jre/lib/management/snmp.acl || true
 
 	# Use our own Java security settings in we want to override something
-        install -m644 ${WORKDIR}/iris-java.security  ${D}${JDK_HOME}/jre/lib/security/java.security
+        install -m644 ${UNPACKDIR}/iris-java.security  ${D}${JDK_HOME}/jre/lib/security/java.security
 	rm -rf ${D}${JDK_HOME}/jre/lib/security/nss.cfg
 }
 

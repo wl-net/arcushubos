@@ -12,6 +12,6 @@ EXTRA_OECONF += " \
 "
 
 # Remove test .wav files
-FILES:alsa-utils-speakertest = "${bindir}/speaker-test"
+FILES:alsa-utils-speaker-test = "${bindir}/speaker-test"
 
 INSANE_SKIP:${PN} = "installed-vs-shipped"

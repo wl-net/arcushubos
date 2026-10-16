@@ -24,6 +24,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 PR = "r0"
+S = "${UNPACKDIR}"
 
 SRC_URI = "file://nfc_test.c \
            file://irisnfcd.c \
@@ -42,8 +43,8 @@ TARGET_MACHINE := "${@'${MACHINE}'.replace('-', '_')}"
 CFLAGS += "-D${TARGET_MACHINE}"
 
 do_compile () {
-	${CC} -g ${CFLAGS} ${LDFLAGS} ${WORKDIR}/nfc_test.c -o nfc_test -lst95hf
-	${CC} -g ${CFLAGS} ${LDFLAGS} ${WORKDIR}/irisnfcd.c -o irisnfcd -lst95hf -liris
+	${CC} -g ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/nfc_test.c -o nfc_test -lst95hf
+	${CC} -g ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/irisnfcd.c -o irisnfcd -lst95hf -liris
 }
 
 do_install () {

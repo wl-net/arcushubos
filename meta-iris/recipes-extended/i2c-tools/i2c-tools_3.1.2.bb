@@ -1,6 +1,6 @@
 SUMMARY = "Set of i2c tools for linux - just tools build, no perl needed"
 SECTION = "base"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
 SRC_URI = "http://downloads.yoctoproject.org/mirror/sources/${BP}.tar.bz2 \
@@ -12,7 +12,7 @@ SRC_URI[sha256sum] = "db5e69f2e2a6e3aa2ecdfe6a5f490b149c504468770f58921c8c5b8a78
 inherit autotools-brokensep
 
 do_compile:prepend() {
-    cp ${WORKDIR}/Makefile ${S}/
+    cp ${UNPACKDIR}/Makefile ${S}/
 }
 
 do_install:append() {

@@ -15,19 +15,19 @@ PV = "2.0.5.Final"
 BRANCH ?= "master"
 SRCREV = "49b2322bcf8810fd6255c0aa7f9c8f5f0e61c7c4"
 
-SRC_URI = "git://github.com/netty/netty-tcnative.git;protocol=git;branch=${BRANCH}"
+SRC_URI = "git://github.com/netty/netty-tcnative.git;protocol=https;branch=${BRANCH}"
 
 SRC_URI += "file://Makefile \
 	   file://jni.h \
 	   file://jni_md.h \
 	   "
 
-S = "${WORKDIR}/git/openssl-dynamic/src/main/c"
+S = "${UNPACKDIR}/${BP}/openssl-dynamic/src/main/c"
 
 do_compile:prepend() {
-    cp ${WORKDIR}/Makefile ${S}/
-    cp ${WORKDIR}/jni.h ${S}/
-    cp ${WORKDIR}/jni_md.h ${S}/
+    cp ${UNPACKDIR}/Makefile ${S}/
+    cp ${UNPACKDIR}/jni.h ${S}/
+    cp ${UNPACKDIR}/jni_md.h ${S}/
 }
 
 do_compile () {

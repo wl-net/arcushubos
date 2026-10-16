@@ -20,12 +20,15 @@
 #
 
 DESCRIPTON = "Iris GPL library programs"
-LICENSE = "LGPLv2.1 & GPLv2+"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/COPYING.LIB;md5=fb504b67c50331fc78734fed90fb0e09"
+LICENSE = "LGPL-2.1-only & GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://${UNPACKDIR}/COPYING.LIB;md5=fb504b67c50331fc78734fed90fb0e09"
 
 DEPENDS = "dbus glib-2.0"
 RDEPENDS:${PN} = "dbus"
 PR = "r0"
+S = "${UNPACKDIR}"
+
+inherit pkgconfig
 
 SRC_URI = "file://bluez-dbus.h \
            file://client.c \
@@ -51,12 +54,12 @@ CFLAGS += "-I${RECIPE_SYSROOT}/usr/lib/dbus-1.0/include/ -I${STAGING_INCDIR}/dbu
 CFLAGS += "`/usr/bin/pkg-config --cflags glib-2.0`"
 
 do_compile () {
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/client.c -o client.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/mainloop.c -o mainloop.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/object.c -o object.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/polkit.c -o polkit.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/watch.c -o watch.o
-        ${CC} ${CFLAGS} ${LDFLAGS} -c ${WORKDIR}/gatt-service.c -o \
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/client.c -o client.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/mainloop.c -o mainloop.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/object.c -o object.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/polkit.c -o polkit.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/watch.c -o watch.o
+        ${CC} ${CFLAGS} ${LDFLAGS} -c ${UNPACKDIR}/gatt-service.c -o \
 	      	gatt-service.o
 	${CC} ${LDFLAGS} -shared -fPIC -Wl,-soname,libbluez-dbus.so.1 \
 	      -o libbluez-dbus.so.1.0 client.o gatt-service.o mainloop.o \
@@ -65,7 +68,7 @@ do_compile () {
 
 do_install () {
 	install -d ${D}${includedir}
-	install -m 0444 ${WORKDIR}/bluez-dbus.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/bluez-dbus.h ${D}${includedir}
 
 	install -d ${D}${libdir}
 	install -m 0755 libbluez-dbus.so.1.0 ${D}${libdir}

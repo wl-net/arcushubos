@@ -23,6 +23,9 @@
 CFLAGS	+= -Wall
 CFLAGS += -DCR95HF -DIRIS
 CFLAGS += -ILibraries/95HF/inc
+# Upstream calls usleep() without including <unistd.h>; GCC 14+ treats implicit
+# declarations as errors rather than warnings.
+CFLAGS += -Wno-implicit-function-declaration
 CFLAGS += -ILibraries/NDEF/inc
 CFLAGS += -IProjects/ST95HF_ETEC/inc
 CFLAGS += -fPIC

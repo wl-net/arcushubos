@@ -6,7 +6,6 @@ EXTRA_OECONF += " \
     --disable-seq \
     --disable-ucm \
     --disable-topology \
-    --disable-alisp \
     --disable-old-symbols \
     --disable-python \
 "

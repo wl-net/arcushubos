@@ -25,6 +25,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 DEPENDS = "iris-lib"
 RDEPENDS:${PN} = "iris-lib"
 PR = "r1"
+S = "${UNPACKDIR}"
 
 SRC_URI = "file://zigbee_fsl_flash \
 	   file://zigbee_ti_flash \
@@ -40,12 +41,12 @@ INSANE_SKIP:${PN} = "already-stripped"
 do_install () {
 	install -d ${D}${bindir}
 	if [ "${MACHINE}" = "imxdimagic" ]; then
-	    install -m 4755 ${WORKDIR}/zigbee_fsl_flash ${D}${bindir}/zigbee_flash
-	    install -m 4755 ${WORKDIR}/zigbee_fsl_default ${D}${bindir}/zigbee_default
-	    install -m 4755 ${WORKDIR}/zigbee_fsl_mfg_tokens ${D}${bindir}/zigbee_mfg_tokens
+	    install -m 4755 ${UNPACKDIR}/zigbee_fsl_flash ${D}${bindir}/zigbee_flash
+	    install -m 4755 ${UNPACKDIR}/zigbee_fsl_default ${D}${bindir}/zigbee_default
+	    install -m 4755 ${UNPACKDIR}/zigbee_fsl_mfg_tokens ${D}${bindir}/zigbee_mfg_tokens
 	else
-	    install -m 4755 ${WORKDIR}/zigbee_ti_flash ${D}${bindir}/zigbee_flash
-	    install -m 4755 ${WORKDIR}/zigbee_ti_default ${D}${bindir}/zigbee_default
-	    install -m 4755 ${WORKDIR}/zigbee_ti_mfg_tokens ${D}${bindir}/zigbee_mfg_tokens
+	    install -m 4755 ${UNPACKDIR}/zigbee_ti_flash ${D}${bindir}/zigbee_flash
+	    install -m 4755 ${UNPACKDIR}/zigbee_ti_default ${D}${bindir}/zigbee_default
+	    install -m 4755 ${UNPACKDIR}/zigbee_ti_mfg_tokens ${D}${bindir}/zigbee_mfg_tokens
 	fi
 }

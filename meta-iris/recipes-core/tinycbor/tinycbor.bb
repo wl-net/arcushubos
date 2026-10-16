@@ -21,7 +21,7 @@
 DESCRIPTION = "Intel CBOR library"
 
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=6c1ac30774dd6476b42b5b020cd2aa5f"
+LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=6c1ac30774dd6476b42b5b020cd2aa5f"
 
 PV = "0.5.1"
 PR = "r0"
@@ -29,9 +29,8 @@ PR = "r0"
 BRANCH ?= "master"
 SRCREV = "ae64a3d9da39f3bf310b9a7b38427c096d8bcd43"
 
-SRC_URI = "git://github.com/intel/tinycbor.git;protocol=git;branch=${BRANCH}"
+SRC_URI = "git://github.com/intel/tinycbor.git;protocol=https;branch=${BRANCH}"
 
-S = "${WORKDIR}/git"
 
 INSANE_SKIP:${PN} = "ldflags"
 

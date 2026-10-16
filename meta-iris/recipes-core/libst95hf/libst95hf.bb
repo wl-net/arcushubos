@@ -21,7 +21,7 @@
 DESCRIPTION = "ST Micro 95HF NFC library"
 
 LICENSE = "ST-Micro"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/Release_Notes.html;md5=81e8fc6f0ac0024bf196725dfc3835d5"
+LIC_FILES_CHKSUM = "file://${S}/Release_Notes.html;md5=81e8fc6f0ac0024bf196725dfc3835d5"
 
 PV = "1.0"
 PR = "r0"
@@ -31,7 +31,7 @@ COMPATIBLE_MACHINE = "imxdimagic"
 BRANCH ?= "master"
 SRCREV = "ed8cabcc1e1736ec76cbb7b0bed064d06b4e7d26"
 
-SRC_URI = "git://github.com/ngohaibac/ST95HF.git;protocol=git;branch=${BRANCH}"
+SRC_URI = "git://github.com/ngohaibac/ST95HF.git;protocol=https;branch=${BRANCH}"
 
 SRC_URI += "file://Makefile \
 	   file://libst95hf.h \
@@ -39,15 +39,14 @@ SRC_URI += "file://Makefile \
 	   file://0002-Fixed-issues-with-tag-handling.patch \
 	   file://0003-Fix-tag-read-issues.patch \
 	   "
-S = "${WORKDIR}/git"
 
 do_compile:prepend() {
-    cp ${WORKDIR}/Makefile ${S}/
+    cp ${UNPACKDIR}/Makefile ${S}/
 }
 
 do_install () {
 	install -d ${D}${includedir}
-	install -m 0444 ${WORKDIR}/libst95hf.h ${D}${includedir}
+	install -m 0444 ${UNPACKDIR}/libst95hf.h ${D}${includedir}
 
 	install -d ${D}${libdir}
 	install -m 0755 libst95hf.so.1.0 ${D}${libdir}

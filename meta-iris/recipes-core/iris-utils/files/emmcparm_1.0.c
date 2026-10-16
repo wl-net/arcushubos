@@ -33,6 +33,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <inttypes.h> 		
 #include <linux/types.h>
 #include <linux/mmc/ioctl.h>

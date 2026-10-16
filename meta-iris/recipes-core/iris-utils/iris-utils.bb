@@ -26,7 +26,7 @@ DEPENDS = "glib-2.0 iris-lib"
 DEPENDS:append:class-target = " iris-utils-native"
 RDEPENDS:iris-utils = "iris-lib cronie curl"
 PR = "r0"
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 BBCLASSEXTEND += "native"
 
 INITSCRIPT_NAME = "irisinit"
@@ -36,7 +36,11 @@ INITSCRIPT_PARAMS = "start 95 S ."
 # /etc/rcS.d# ls -ltr S95irisinit
 # lrwxrwxrwx 1 root root 18 Feb 31  2000 S95irisinit -> ../init.d/irisinit
 
-inherit autotools update-rc.d useradd
+inherit autotools update-rc.d useradd pkgconfig
+
+# These have no configure script (sources are plain .c files built by the
+# hand-written do_compile below), so autotools' oe_runconf would fatal.
+do_configure[noexec] = "1"
 
 SRC_URI = "file://ledctrl.c \
            file://fwinstall.c \
@@ -122,47 +126,47 @@ HOSTCFLAGS = "-Wall -Werror -Wno-unused-result -D${TARGET_MACHINE} \
             "
 
 do_compile () {
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/irisinitd.c ${WORKDIR}/daemon.c -o irisinitd -lrt -lpthread -liris `/usr/bin/pkg-config --cflags --libs glib-2.0`
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/irisinitd.c ${UNPACKDIR}/daemon.c -o irisinitd -lrt -lpthread -liris `/usr/bin/pkg-config --cflags --libs glib-2.0`
 
 # Updates are now going to be handled by hub agent
-#       ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/auto_updated.c ${WORKDIR}/daemon.c -o auto_updated -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/validate_image.c -o validate_image
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/update.c -o update -liris
+#       ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/auto_updated.c ${UNPACKDIR}/daemon.c -o auto_updated -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/validate_image.c -o validate_image
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/update.c -o update -liris
         # Battery daemon is machine specific
         if [ "${MACHINE}" = "beaglebone-yocto" ]; then
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/batteryd.c -o batteryd -liris
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/batteryd.c -o batteryd -liris
         elif [ "${MACHINE}" = "imxdimagic" ]; then
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/batterydv3.c -o batteryd -liris
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/batterydv3.c -o batteryd -liris
         fi
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/fwinstall.c -o fwinstall -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/hub_restart.c -o hub_restart
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/update_cert.c -o update_cert -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/update_key.c -o update_key -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/factory_default.c -o factory_default -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/play_tones.c -o play_tones
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/dwatcher.c -o dwatcher -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/fwinstall.c -o fwinstall -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/hub_restart.c -o hub_restart
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/update_cert.c -o update_cert -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/update_key.c -o update_key -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/factory_default.c -o factory_default -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/play_tones.c -o play_tones
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/dwatcher.c -o dwatcher -liris
 
         # LED Ring support vs. plain LEDs
         if [ "${MACHINE}" = "imxdimagic" ]; then
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/ledRing.c -o ledRing -liris
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/ringctrl.c -o ringctrl
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/ledRing.c -o ledRing -liris
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/ringctrl.c -o ringctrl
         else
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/ledctrl.c -o ledctrl
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/ledctrl.c -o ledctrl
         fi
 
         # Wifi scan support
         if [ "${MACHINE}" != "beaglebone-yocto" ]; then
-           ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/wifi_scan.c -o wifi_scan
+           ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/wifi_scan.c -o wifi_scan
         fi
 
         # Micron eMMC flash tool - don't treat warnings as errors!
-        ${CC} ${LDFLAGS} ${WORKDIR}/emmcparm_1.0.c -o emmcparm
+        ${CC} ${LDFLAGS} ${UNPACKDIR}/emmcparm_1.0.c -o emmcparm
 }
 
 do_compile:class-native() {
         # This is a host tool
-        gcc ${HOSTCFLAGS} ${WORKDIR}/build_image.c -o build_image
-        gcc ${HOSTCFLAGS} ${WORKDIR}/validate_image.c -o validate_image
+        gcc ${HOSTCFLAGS} ${UNPACKDIR}/build_image.c -o build_image
+        gcc ${HOSTCFLAGS} ${UNPACKDIR}/validate_image.c -o validate_image
 }
 
 FILES:${PN} += "/data \
@@ -200,14 +204,14 @@ do_install () {
 	   install -m 4755 ledctrl ${D}${bindir}
 	fi
 
-	install -m 0755 ${WORKDIR}/boot_partition ${D}${bindir}
+	install -m 0755 ${UNPACKDIR}/boot_partition ${D}${bindir}
 	install -d ${D}${sysconfdir}/init.d
 
 	# Init script depends on machine
 	if [ "${MACHINE}" = "beaglebone-yocto" ]; then
-           install -m 0755 ${WORKDIR}/irisinit-ti  ${D}${sysconfdir}/init.d/irisinit
+           install -m 0755 ${UNPACKDIR}/irisinit-ti  ${D}${sysconfdir}/init.d/irisinit
 	elif [ "${MACHINE}" = "imxdimagic" ]; then
-           install -m 0755 ${WORKDIR}/irisinit-imxdimagic  ${D}${sysconfdir}/init.d/irisinit
+           install -m 0755 ${UNPACKDIR}/irisinit-imxdimagic  ${D}${sysconfdir}/init.d/irisinit
 	fi
 
 	# Create data and mfg partition mount points
@@ -216,44 +220,44 @@ do_install () {
 
 	# Install certs
 	install -d ${D}/etc/.ssh
-	install -m 0644 ${WORKDIR}/iris-fwsign.pub ${D}/etc/.ssh
-	install -m 0644 ${WORKDIR}/iris-hubsign.chained.crt ${D}/etc/.ssh
+	install -m 0644 ${UNPACKDIR}/iris-fwsign.pub ${D}/etc/.ssh
+	install -m 0644 ${UNPACKDIR}/iris-hubsign.chained.crt ${D}/etc/.ssh
 
 	# Copy hosts, fstab, profile, asound.conf and securetty files for later use
 	install -d ${D}/home/root/etc/
-	install -m 0644 ${WORKDIR}/hosts ${D}/home/root/etc/
-	install -m 0444 ${WORKDIR}/securetty ${D}/home/root/etc/
-	install -m 0444 ${WORKDIR}/securetty_noconsole ${D}/home/root/etc/
-	install -m 0644 ${WORKDIR}/fstab ${D}/home/root/etc/
-	install -m 0644 ${WORKDIR}/profile ${D}/home/root/etc/
+	install -m 0644 ${UNPACKDIR}/hosts ${D}/home/root/etc/
+	install -m 0444 ${UNPACKDIR}/securetty ${D}/home/root/etc/
+	install -m 0444 ${UNPACKDIR}/securetty_noconsole ${D}/home/root/etc/
+	install -m 0644 ${UNPACKDIR}/fstab ${D}/home/root/etc/
+	install -m 0644 ${UNPACKDIR}/profile ${D}/home/root/etc/
 	if [ "${MACHINE}" = "imxdimagic" ]; then
-           install -m 0755 ${WORKDIR}/asound-imx6qmq.conf ${D}/home/root/etc/asound.conf
+           install -m 0755 ${UNPACKDIR}/asound-imx6qmq.conf ${D}/home/root/etc/asound.conf
 	fi
 
 	# Set up wireless configuration files
 	if [ "${MACHINE}" != "beaglebone-yocto" ]; then
-	   install -m 0644 ${WORKDIR}/interfaces ${D}/home/root/etc/
-	   install -m 0755 ${WORKDIR}/wpa_supplicant.conf ${D}/home/root/etc/
-	   install -m 0755 ${WORKDIR}/wifi_start ${D}${bindir}
-	   install -m 0755 ${WORKDIR}/wifi_test ${D}${bindir}
+	   install -m 0644 ${UNPACKDIR}/interfaces ${D}/home/root/etc/
+	   install -m 0755 ${UNPACKDIR}/wpa_supplicant.conf ${D}/home/root/etc/
+	   install -m 0755 ${UNPACKDIR}/wifi_start ${D}${bindir}
+	   install -m 0755 ${UNPACKDIR}/wifi_test ${D}${bindir}
 	   install -m 0755 wifi_scan ${D}${bindir}
 	fi
 
 	# Set files needed for manufacturing of v3 hub
 	if [ "${MACHINE}" = "imxdimagic" ]; then
-	   install -m 0644 ${WORKDIR}/interfaces_mfg ${D}/home/root/etc/
-	   install -m 0644 ${WORKDIR}/resolv_mfg ${D}/home/root/etc/
+	   install -m 0644 ${UNPACKDIR}/interfaces_mfg ${D}/home/root/etc/
+	   install -m 0644 ${UNPACKDIR}/resolv_mfg ${D}/home/root/etc/
 	fi
 
 	# Copy sound files
 	install -d ${D}/home/root/sounds/
-	install -m 0444 ${WORKDIR}/reboot_sound.txt ${D}/home/root/sounds/
-	install -m 0444 ${WORKDIR}/reset_sound.txt ${D}/home/root/sounds/
+	install -m 0444 ${UNPACKDIR}/reboot_sound.txt ${D}/home/root/sounds/
+	install -m 0444 ${UNPACKDIR}/reset_sound.txt ${D}/home/root/sounds/
 
 	# Radio firmware to install after boot (only for v3 hub)
 	if [ "${MACHINE}" = "imxdimagic" ]; then
 	   install -d ${D}/home/root/fw/
-	   install -m 0444 ${WORKDIR}/zigbee-firmware-hwflow.bin ${D}/home/root/fw/
+	   install -m 0444 ${UNPACKDIR}/zigbee-firmware-hwflow.bin ${D}/home/root/fw/
 	fi
 
 	# Replace /etc/timestamp with a link to /data/config/timestamp
@@ -261,18 +265,18 @@ do_install () {
 
 	# Install ntpd startup script
 	install -d ${D}${sysconfdir}/network/if-up.d
-	install -m 0755 ${WORKDIR}/ntpd  ${D}${sysconfdir}/network/if-up.d/
+	install -m 0755 ${UNPACKDIR}/ntpd  ${D}${sysconfdir}/network/if-up.d/
 
 	# Install ifplugd support
 	install -d ${D}${sysconfdir}/ifplugd
-	install -m 0755 ${WORKDIR}/ifplugd  ${D}${sysconfdir}/init.d/
+	install -m 0755 ${UNPACKDIR}/ifplugd  ${D}${sysconfdir}/init.d/
 	# Allow for wifi support on non-TI platforms
 	if [ "${MACHINE}" != "beaglebone-yocto" ]; then
-	  install -m 0755 ${WORKDIR}/ifplugd-wifi.action ${D}${sysconfdir}/ifplugd/ifplugd.action
+	  install -m 0755 ${UNPACKDIR}/ifplugd-wifi.action ${D}${sysconfdir}/ifplugd/ifplugd.action
 	else
-	  install -m 0755 ${WORKDIR}/ifplugd.action ${D}${sysconfdir}/ifplugd/
+	  install -m 0755 ${UNPACKDIR}/ifplugd.action ${D}${sysconfdir}/ifplugd/
 	fi
-	install -m 0755 ${WORKDIR}/ifplugd.conf ${D}${sysconfdir}/ifplugd/
+	install -m 0755 ${UNPACKDIR}/ifplugd.conf ${D}${sysconfdir}/ifplugd/
 
 	# Install cron setup
 	install -d ${D}${sysconfdir}/cron.d
@@ -280,11 +284,11 @@ do_install () {
 	install -d ${D}${sysconfdir}/cron.hourly
 
 	# We run fstrim every hour now
-	install -m 0444 ${WORKDIR}/0hourly  ${D}${sysconfdir}/cron.d/
-	install -p -m 4755 ${WORKDIR}/fstrim.cron ${D}${sysconfdir}/cron.hourly/fstrim
+	install -m 0444 ${UNPACKDIR}/0hourly  ${D}${sysconfdir}/cron.d/
+	install -p -m 4755 ${UNPACKDIR}/fstrim.cron ${D}${sysconfdir}/cron.hourly/fstrim
 
 	# Run ntpd every hour as well
-	install -p -m 4755 ${WORKDIR}/ntpd.cron ${D}${sysconfdir}/cron.hourly/ntpd
+	install -p -m 4755 ${UNPACKDIR}/ntpd.cron ${D}${sysconfdir}/cron.hourly/ntpd
 
 	# Create a link to arp - so it's in "normal" location
 	install -d ${D}/usr/sbin
@@ -292,12 +296,12 @@ do_install () {
 
 	# Copy developer scripts
 	install -d ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/agent_install ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/agent_reinstall ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/agent_reset ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/agent_start ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/agent_stop ${D}/home/root/bin/
-	install -m 0755 ${WORKDIR}/firmware_install ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/agent_install ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/agent_reinstall ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/agent_reset ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/agent_start ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/agent_stop ${D}/home/root/bin/
+	install -m 0755 ${UNPACKDIR}/firmware_install ${D}/home/root/bin/
 }
 
 

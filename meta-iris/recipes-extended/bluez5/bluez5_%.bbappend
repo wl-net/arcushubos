@@ -19,6 +19,6 @@ EXTRA_OECONF += "\
 
 # Replace init file
 do_compile:prepend() {
-    cp ${WORKDIR}/bluetooth.init ${WORKDIR}/init
+    cp ${UNPACKDIR}/bluetooth.init ${WORKDIR}/init
 }
 

@@ -25,7 +25,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 DEPENDS = "iris-lib"
 RDEPENDS:${PN} = "iris-lib iris-utils logrotate cronie"
 PR = "r0"
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 INITSCRIPT_NAME = "irisagent"
 INITSCRIPT_PARAMS = "start 99 S ."
@@ -36,18 +36,15 @@ INITSCRIPT_PARAMS = "start 99 S ."
 
 inherit autotools update-rc.d
 
-# These need to be updated with each agent version change
-AGENT_VERSION="2.13.26-prod"
-SRC_URI[sha256sum] = "66685ff6998632cd035fcdfc692aad1a732fa13a5847e3c72f530a264bf3b7a7"
-AGENT_FILE="iris-agent-hub-v2-${AGENT_VERSION}.tar.gz"
+# These have no configure script (sources are plain .c files built by the
+# hand-written do_compile below), so autotools' oe_runconf would fatal.
+do_configure[noexec] = "1"
 
 SRC_URI = "file://irisagent \
            file://irisagentd.c \
            file://0hourly \
-           https://tools.arcus.wl-net.net/${AGENT_FILE}?dl=1 \
+           file://arcus-agent-hub.tar.gz;unpack=0 \
            "
-# Add to list if using local binary and remove server file https line
-#	   file://iris-agent-hub
 
 FILES:${PN} += "/home/agent \
                /home/root/.ssh \
@@ -72,14 +69,14 @@ do_compile () {
         else
                 GATEWAY_FLAG=""
         fi
-        ${CC} ${CFLAGS} ${GATEWAY_FLAG} ${LDFLAGS} ${WORKDIR}/irisagentd.c -o irisagentd -liris
+        ${CC} ${CFLAGS} ${GATEWAY_FLAG} ${LDFLAGS} ${UNPACKDIR}/irisagentd.c -o irisagentd -liris
 }
 
 do_install () {
         install -d ${D}${bindir}
         install -m 0755 irisagentd ${D}${bindir}
         install -d ${D}${sysconfdir}/init.d
-        install -m 0755 ${WORKDIR}/irisagent  ${D}${sysconfdir}/init.d/
+        install -m 0755 ${UNPACKDIR}/irisagent  ${D}${sysconfdir}/init.d/
 
         # Install cron setup needed for agent log maintenance
         # NO LONGER NEEDED AS WE SET UP HOURLY CRON CONFIG IN IRIS_UTILS!
@@ -88,7 +85,7 @@ do_install () {
 
         # Install hub agent tar file
         install -d ${D}/home/agent
-        install -m 0444 ${DL_DIR}/${AGENT_FILE}?dl=1 ${D}/home/agent/iris-agent-hub
+        install -m 0444 ${UNPACKDIR}/arcus-agent-hub.tar.gz ${D}/home/agent/iris-agent-hub
 
         # Replace /home/root/.ssh/authorized_keys with a link to /var/run/..
         install -d ${D}/home/root/.ssh

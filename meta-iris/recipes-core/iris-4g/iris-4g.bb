@@ -25,7 +25,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5
 DEPENDS = "iris-lib"
 RDEPENDS:${PN} = "iris-lib usb-modeswitch curl"
 PR = "r1"
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 INITSCRIPT_NAME = "iris4g"
 INITSCRIPT_PARAMS = "start 99 S ."
@@ -35,6 +35,10 @@ INITSCRIPT_PARAMS = "start 99 S ."
 # lrwxrwxrwx 1 root root 18 Feb 31  2000 S99iris4g -> ../init.d/iris4g
 
 inherit autotools update-rc.d
+
+# These have no configure script (sources are plain .c files built by the
+# hand-written do_compile below), so autotools' oe_runconf would fatal.
+do_configure[noexec] = "1"
 
 SRC_URI = "file://backup_start.c \
 	   file://backup_stop.c \
@@ -51,10 +55,10 @@ TARGET_MACHINE := "${@'${MACHINE}'.replace('-', '_')}"
 CFLAGS += "-D${TARGET_MACHINE}"
 
 do_compile() {
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/backup_start.c -o backup_start -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/backup_stop.c -o backup_stop -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/check_primary.c -o check_primary -liris
-        ${CC} ${CFLAGS} ${LDFLAGS} ${WORKDIR}/iris4gd.c -o iris4gd -lpthread -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/backup_start.c -o backup_start -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/backup_stop.c -o backup_stop -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/check_primary.c -o check_primary -liris
+        ${CC} ${CFLAGS} ${LDFLAGS} ${UNPACKDIR}/iris4gd.c -o iris4gd -lpthread -liris
 }
 
 do_install () {
@@ -67,11 +71,11 @@ do_install () {
 
         install -m 0755 iris4gd ${D}${bindir}
         install -d ${D}${sysconfdir}/init.d
-        install -m 0755 ${WORKDIR}/iris4g  ${D}${sysconfdir}/init.d/
+        install -m 0755 ${UNPACKDIR}/iris4g  ${D}${sysconfdir}/init.d/
 
 	install -d ${D}${sysconfdir}/udev
 	install -d ${D}${sysconfdir}/udev/rules.d
-	install -m 0755 ${WORKDIR}/usb-rule.rules  ${D}${sysconfdir}/udev/rules.d/85-usb-rule.rules
+	install -m 0755 ${UNPACKDIR}/usb-rule.rules  ${D}${sysconfdir}/udev/rules.d/85-usb-rule.rules
 	install -d ${D}${sysconfdir}/udev/scripts
-	install -m 0755 ${WORKDIR}/usb_lte.sh  ${D}${sysconfdir}/udev/scripts/
+	install -m 0755 ${UNPACKDIR}/usb_lte.sh  ${D}${sysconfdir}/udev/scripts/
 }

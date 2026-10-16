@@ -20,16 +20,16 @@
 
 SUMMARY = "Adoptium Temurin pre-built armhf OpenJDK 11 binaries"
 PR = "r1"
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 DEPENDS = "zip-native unzip-native"
 
 
 libdir_jvm ?= "${libdir}/jvm"
 JDK_HOME = "${libdir_jvm}/java-11-openjdk"
-BIN_DIR = "${WORKDIR}/jdk"
+BIN_DIR = "${UNPACKDIR}/jdk"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/legal/java.base/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
 SRC_URI = " \
@@ -49,7 +49,7 @@ SKIP_FILEDEPS:${PN} = "1"
 
 # Rename the date-stamped extracted directory to a deterministic name
 do_unpack_fixup () {
-    cd "${WORKDIR}"
+    cd "${UNPACKDIR}"
     mv jdk-11.0.30+7 jdk || true
 }
 
@@ -121,7 +121,7 @@ do_install() {
 	      ${D}${JDK_HOME}/conf/management/jmxremote.password || true
 
 	# Use our own Java security settings
-	install -m644 ${WORKDIR}/iris-java.security ${D}${JDK_HOME}/conf/security/java.security
+	install -m644 ${UNPACKDIR}/iris-java.security ${D}${JDK_HOME}/conf/security/java.security
 
 	# Create /usr/bin/java link
 	install -d ${D}${bindir}

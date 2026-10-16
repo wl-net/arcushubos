@@ -15,10 +15,10 @@ do_install () {
     touch ${D}${localstatedir}/lib/logrotate.status
 
     # Add in our log rotate configuration
-    install -m 0644 ${WORKDIR}/logrotate.conf ${D}${sysconfdir}/
+    install -m 0644 ${UNPACKDIR}/logrotate.conf ${D}${sysconfdir}/
 
     # Add in our log rotate cron entry
-    install -p -m 755 ${WORKDIR}/logrotate.cron ${D}${sysconfdir}/cron.hourly/logrotate
+    install -p -m 755 ${UNPACKDIR}/logrotate.cron ${D}${sysconfdir}/cron.hourly/logrotate
 }
 
 

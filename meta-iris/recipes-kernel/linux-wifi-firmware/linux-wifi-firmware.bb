@@ -22,56 +22,42 @@
 SUMMARY = "Wireless firmware files for use with hub Linux kernel"
 SECTION = "kernel"
 
-SRCREV = "5f8ca0c1db6106a2d6d7e85eee778917ff03c3de"
-PE = "1"
-PV = "0.0+git${SRCPV}"
-
-SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git \
-	file://brcmfmac43362-sdio.txt \
-	file://brcmfmac43362-sdio.bin \
-	"
-
-S = "${WORKDIR}/git"
-
-LICENSE = "LICENCE.rtlwifi_firmware.txt"
-LIC_FILES_CHKSUM = "\
-    file://${S}/LICENCE.rtlwifi_firmware.txt;md5=00d06cfd3eddd5a2698948ead2ad54a5 \
-    file://${S}/LICENCE.broadcom_bcm43xx;md5=3160c14df7228891b868060e1951dfbc \
+# The Realtek firmware and both licence texts come from oe-core's linux-firmware,
+# which is packaged per-device and built from a release tarball. This recipe used
+# to clone the full linux-firmware git history (~10GB) to cherry-pick those same
+# files, and its brcm copies were overwritten by the local ones below anyway.
+RDEPENDS:${PN} = " \
+    linux-firmware-rtl8188 \
+    linux-firmware-rtl8192cu \
+    linux-firmware-rtl-license \
+    linux-firmware-broadcom-license \
 "
-LICENSE_PATH += "${S}"
 
-CLEANBROKEN = "1"
-INSANE_SKIP:${PN} = "installed-vs-shipped "
+# Broadcom AP6181 (43362) support. Upstream linux-firmware has no
+# brcm/brcmfmac43362-sdio.bin any more (it moved to cypress/cyfmac43362-sdio.*),
+# and ships only board-specific NVRAM .txt files, none of which match this
+# hardware -- so both of these must be carried locally.
+#   .bin: later firmware supplied by Broadcom via GS
+#   .txt: NVRAM needed to bring the driver up
+SRC_URI = "file://brcmfmac43362-sdio.txt \
+           file://brcmfmac43362-sdio.bin \
+           "
 
-FILES:${PN}-license += "/lib/firmware/LICEN*rtl*"
-FILES:${PN}-license += "/lib/firmware/LICENCE.broadcom_bcm43xx"
-FILES:${PN} += "/lib/firmware/rtlwifi/*8192cu*"
-FILES:${PN} += "/lib/firmware/rtlwifi/*8188*"
-FILES:${PN} += "/lib/firmware/brcm/brcmfmac43362-sdio.bin"
-FILES:${PN} += "/lib/firmware/brcm/brcmfmac43362-sdio.txt"
+S = "${UNPACKDIR}"
 
-do_compile() {
-	:
-}
+# Vendor-supplied binary with no redistributable licence text of its own; the
+# Broadcom licence ships on target via linux-firmware-broadcom-license above.
+LICENSE = "CLOSED"
+
+PE = "1"
+PV = "1.0"
+
+FILES:${PN} = "/lib/firmware/brcm/brcmfmac43362-sdio.bin \
+               /lib/firmware/brcm/brcmfmac43362-sdio.txt \
+               "
 
 do_install() {
-	install -d  ${D}${base_libdir}/firmware/
-
-	# Just RTL (Realtek 8188/8192) support for now
-	install -d  ${D}${base_libdir}/firmware/rtlwifi/
-	cp -r ${S}/rtlwifi/*8192cu* ${D}${base_libdir}/firmware/rtlwifi/
-	cp -r ${S}/rtlwifi/*8188* ${D}${base_libdir}/firmware/rtlwifi/
-	cp ${S}/LICEN*rtl* ${D}${base_libdir}/firmware/
-
-	# And Broadcom support for AP6181
-	install -d  ${D}${base_libdir}/firmware/brcm/
-	cp -r ${S}/brcm/*43362* ${D}${base_libdir}/firmware/brcm/
-	# This NVRAM .txt file is not part of the current package,
-	#  so include separately in this package for now to allow
-	#  driver to come up
-        cp -r ${WORKDIR}/brcmfmac43362-sdio.txt ${D}${base_libdir}/firmware/brcm/
-        # Update to later firmware file as well (from Broadcom via GS)
-        cp -r ${WORKDIR}/brcmfmac43362-sdio.bin ${D}${base_libdir}/firmware/brcm/
-	cp ${S}/LICEN*bcm43xx* ${D}${base_libdir}/firmware/
+	install -d ${D}${base_libdir}/firmware/brcm/
+	install -m 0644 ${UNPACKDIR}/brcmfmac43362-sdio.bin ${D}${base_libdir}/firmware/brcm/
+	install -m 0644 ${UNPACKDIR}/brcmfmac43362-sdio.txt ${D}${base_libdir}/firmware/brcm/
 }
-
