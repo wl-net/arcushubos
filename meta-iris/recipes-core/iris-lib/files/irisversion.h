@@ -25,7 +25,7 @@
 #define VERSION_POINT 0
 
 /* Build number gets incremented with each official build */
-#define VERSION_BUILD    8
+#define VERSION_BUILD    9
 
 /* The suffix is used to identify special, one-off, builds */
 #define VERSION_SUFFIX ""
