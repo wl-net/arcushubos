@@ -33,10 +33,10 @@ LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${BIN_DIR}/legal/java.base/ASSEMBLY_EXCEPTION;md5=d94f7c92ff61c5d3f8e9433f76e39f74"
 
 SRC_URI = " \
-	https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.30%2B7/OpenJDK11U-jdk_arm_linux_hotspot_11.0.30_7.tar.gz \
+	https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_arm_linux_hotspot_11.0.32.1_1.tar.gz \
 	file://iris-java.security \
 	"
-SRC_URI[sha256sum] = "1ef020c2215f3169c7610df573581806c58f00a0a1d512fd945a2687cbed1173"
+SRC_URI[sha256sum] = "95cd974d9155650255cb8747a44df8170b00f932ac7f63fec0598bf2ea5706e0"
 
 FILES:${PN} += "/usr/lib/jvm/java-11-openjdk"
 
@@ -50,7 +50,7 @@ SKIP_FILEDEPS:${PN} = "1"
 # Rename the date-stamped extracted directory to a deterministic name
 do_unpack_fixup () {
     cd "${UNPACKDIR}"
-    mv jdk-11.0.30+7 jdk || true
+    mv jdk-11.0.32.1+1 jdk || true
 }
 
 do_unpack[postfuncs] += "do_unpack_fixup"
