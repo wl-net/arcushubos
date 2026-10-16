@@ -1,12 +1,24 @@
-[submodule "poky"]
-	path = poky
-	url = git://git.yoctoproject.org/poky
+[submodule "openembedded-core"]
+	path = openembedded-core
+	url = https://git.openembedded.org/openembedded-core
+	branch = wrynose
+[submodule "meta-yocto"]
+	path = meta-yocto
+	url = https://git.yoctoproject.org/meta-yocto
+	branch = wrynose
+[submodule "bitbake"]
+	path = bitbake
+	url = https://git.openembedded.org/bitbake
+	branch = 2.18
 [submodule "meta-openembedded"]
 	path = meta-openembedded
-	url = git://git.openembedded.org/meta-openembedded
+	url = https://git.openembedded.org/meta-openembedded
+	branch = wrynose
 [submodule "meta-freescale"]
 	path = meta-freescale
-	url = git://github.com/Freescale/meta-freescale.git
+	url = https://github.com/Freescale/meta-freescale.git
+	branch = wrynose
 [submodule "meta-freescale-3rdparty"]
 	path = meta-freescale-3rdparty
-	url = git://github.com/Freescale/meta-freescale-3rdparty.git
+	url = https://github.com/Freescale/meta-freescale-3rdparty.git
+	branch = wrynose

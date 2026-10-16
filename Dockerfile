@@ -1,5 +1,5 @@
 #
-# Dockerfile for Arcus Hub OS Yocto (Scarthgap 5.0) builds
+# Dockerfile for Arcus Hub OS Yocto (Wrynose 6.0) builds
 #
 # Supports both Hub V2 (TI AM335x) and Hub V3 (NXP i.MX6) targets.
 #
@@ -12,7 +12,7 @@ FROM ubuntu:22.04
 # Avoid interactive prompts during package install
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Yocto Scarthgap host dependencies (from Yocto docs + project README)
+# Yocto Wrynose host dependencies (from Yocto docs + project README)
 RUN apt-get update && apt-get install -y \
     gawk wget git git-lfs diffstat unzip texinfo \
     gcc g++ gcc-multilib g++-multilib \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-pexpect python3-subunit \
     xz-utils debianutils iputils-ping \
     libsdl1.2-dev xterm \
-    lz4 zstd liblz4-tool patchelf \
+    lz4 zstd liblz4-tool patchelf libstdc++6 \
     srecord \
     openjdk-11-jdk-headless \
     file locales sudo tmux \

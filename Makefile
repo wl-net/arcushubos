@@ -19,13 +19,13 @@
 #
 
 hubv2:
-	(export BDIR=$(PWD)/build-ti; cd poky; . ./oe-init-build-env; \
+	(export BDIR=$(PWD)/build-ti; cd openembedded-core; . ./oe-init-build-env; \
 	bitbake core-image-minimal-iris || exit 1; \
 	tools/create_update_file core-image-minimal-iris; \
 	tools/create_update_file_bootloader core-image-minimal-iris)
 
 hubv2-dev:
-	(export BDIR=$(PWD)/build-ti; cd poky; . ./oe-init-build-env; \
+	(export BDIR=$(PWD)/build-ti; cd openembedded-core; . ./oe-init-build-env; \
 	bitbake core-image-minimal-iris-dev || exit 1; \
 	tools/create_update_file core-image-minimal-iris-dev; \
 	tools/create_update_file_bootloader core-image-minimal-iris-dev)
@@ -41,13 +41,13 @@ hubv2-distclean: hubv2-clean
 #
 
 hubv3:
-	(export BDIR=$(PWD)/build-fsl; cd poky; . ./oe-init-build-env; \
+	(export BDIR=$(PWD)/build-fsl; cd openembedded-core; . ./oe-init-build-env; \
 	bitbake core-image-minimal-iris || exit 1; \
 	tools/create_update_file core-image-minimal-iris; \
 	tools/create_update_file_bootloader core-image-minimal-iris)
 
 hubv3-dev:
-	(export BDIR=$(PWD)/build-fsl; cd poky; . ./oe-init-build-env; \
+	(export BDIR=$(PWD)/build-fsl; cd openembedded-core; . ./oe-init-build-env; \
 	bitbake core-image-minimal-iris-dev || exit 1; \
 	tools/create_update_file core-image-minimal-iris-dev; \
 	tools/create_update_file_bootloader core-image-minimal-iris-dev)
