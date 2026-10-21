@@ -19,7 +19,7 @@
 #
 
 SUMMARY = "Adoptium Temurin pre-built armhf OpenJDK 11 binaries"
-PR = "r1"
+PR = "r2"
 S = "${UNPACKDIR}"
 
 DEPENDS = "zip-native unzip-native"
@@ -34,7 +34,6 @@ LIC_FILES_CHKSUM = "file://${BIN_DIR}/legal/java.base/ASSEMBLY_EXCEPTION;md5=d94
 
 SRC_URI = " \
 	https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.32.1%2B1/OpenJDK11U-jdk_arm_linux_hotspot_11.0.32.1_1.tar.gz \
-	file://iris-java.security \
 	"
 SRC_URI[sha256sum] = "95cd974d9155650255cb8747a44df8170b00f932ac7f63fec0598bf2ea5706e0"
 
@@ -120,8 +119,15 @@ do_install() {
 	mv -f ${D}${JDK_HOME}/conf/management/jmxremote.password.template \
 	      ${D}${JDK_HOME}/conf/management/jmxremote.password || true
 
-	# Use our own Java security settings
-	install -m644 ${UNPACKDIR}/iris-java.security ${D}${JDK_HOME}/conf/security/java.security
+	# Keep the JDK 11 java.security; iris-java.security is a JDK 8 file whose
+	# class-name provider entries can't load SunEC (jdk.crypto.ec) on JDK 11,
+	# leaving the agent with no EC/ECDHE support.  Only apply the urandom
+	# change so SecureRandom doesn't block on first boot.
+	sed -i 's|^securerandom.source=.*|securerandom.source=file:/dev/./urandom|' \
+		${D}${JDK_HOME}/conf/security/java.security
+	grep -q '^securerandom.source=file:/dev/./urandom$' \
+		${D}${JDK_HOME}/conf/security/java.security || \
+		bbfatal "failed to set securerandom.source in java.security"
 
 	# Create /usr/bin/java link
 	install -d ${D}${bindir}
